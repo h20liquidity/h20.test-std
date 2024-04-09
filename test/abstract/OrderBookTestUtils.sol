@@ -28,6 +28,7 @@ abstract contract OrderBookTestUtils is Test {
     uint256 constant CONTEXT_VAULT_IO_ROWS = 5;
     address public EXTERNAL_EOA;
     address public APPROVED_EOA;
+    address public ORDER_OWNER;
 
     IParserV1 public PARSER;
     IExpressionDeployerV3 public EXPRESSION_DEPLOYER;
@@ -126,6 +127,20 @@ abstract contract OrderBookTestUtils is Test {
                 ratio = context[2][1];
                 input = context[3][4];
                 output = context[4][4];
+            }
+        }
+    }
+
+    function getCalculationContext(Vm.Log[] memory entries)
+        public
+        pure
+        returns (uint256 amount, uint256 ratio)
+    {
+        for (uint256 j = 0; j < entries.length; j++) {
+            if (entries[j].topics[0] == keccak256("Context(address,uint256[][])")) {
+                (, uint256[][] memory context) = abi.decode(entries[j].data, (address, uint256[][]));
+                amount = context[2][0];
+                ratio = context[2][1];
             }
         }
     }
