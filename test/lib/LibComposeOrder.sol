@@ -14,12 +14,12 @@ library LibComposeOrders {
         string[] memory ffi = new string[](16);
         ffi[0] = "nix";
         ffi[1] = "develop";
-        ffi[2] = "./lib/rain.orderbook";
+        ffi[2] = "./lib/h20.test-std/lib/rain.orderbook";
         ffi[3] = "--command";
         ffi[4] = "cargo";
         ffi[5] = "run";
         ffi[6] = "--manifest-path";
-        ffi[7] = "./lib/rain.orderbook/Cargo.toml";
+        ffi[7] = "./lib/h20.test-std/lib/rain.orderbook/Cargo.toml";
         ffi[8] = "--package";
         ffi[9] = "rain_orderbook_cli";
         ffi[10] = "order";
