@@ -5,8 +5,8 @@ import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
 import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
 
 contract StrategyTests is OrderBookStrategyTest { 
-    
-    function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
+
+    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy) internal returns(OrderV2 memory order) {
         address inputToken;
         address outputToken;
         uint256 inputTokenVaultId;
@@ -27,13 +27,17 @@ contract StrategyTests is OrderBookStrategyTest {
         {
             depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, 1e30);
         }
-        OrderV2 memory order;
         {
             (bytes memory bytecode, uint256[] memory constants) = PARSER.parse(
                 LibComposeOrders.getComposedOrder(vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath)
             );
             order = placeOrder(ORDER_OWNER, bytecode, constants, strategy.inputVaults, strategy.outputVaults);
         }
+
+    } 
+    
+    function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
+        OrderV2 memory order = addOrderDepositOutputTokens(strategy);
         {
             vm.recordLogs();
             takeExternalOrder(order,strategy.inputTokenIndex,strategy.outputTokenIndex);
@@ -44,5 +48,20 @@ contract StrategyTests is OrderBookStrategyTest {
             assertEq(strategyRatio, strategy.expectedRatio);
             assertEq(strategyAmount, strategy.expectedAmount);
         } 
+    } 
+
+    function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
+        OrderV2 memory order = addOrderDepositOutputTokens(strategy);
+        {
+            vm.recordLogs();
+            takeArbOrder(order,strategy.takerRoute,strategy.inputTokenIndex,strategy.outputTokenIndex);
+
+            Vm.Log[] memory entries = vm.getRecordedLogs();
+            (uint256 strategyAmount,uint256 strategyRatio) = getCalculationContext(entries);
+
+            assertEq(strategyRatio, strategy.expectedRatio);
+            assertEq(strategyAmount, strategy.expectedAmount);
+        } 
+
     }   
 }
