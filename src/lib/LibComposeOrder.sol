@@ -7,19 +7,19 @@ library LibComposeOrders {
     using Strings for address;
     using Strings for uint256;
 
-    function getComposedOrder(Vm vm, string memory filePath, string memory scenario)
+    function getComposedOrder(Vm vm, string memory filePath, string memory scenario, string memory buildPath, string memory manifestPath)
         internal
         returns (bytes memory trancheOrder)
     {
         string[] memory ffi = new string[](16);
         ffi[0] = "nix";
         ffi[1] = "develop";
-        ffi[2] = "./lib/rain.orderbook";
+        ffi[2] = buildPath;
         ffi[3] = "--command";
         ffi[4] = "cargo";
         ffi[5] = "run";
         ffi[6] = "--manifest-path";
-        ffi[7] = "./lib/rain.orderbook/Cargo.toml";
+        ffi[7] = manifestPath;
         ffi[8] = "--package";
         ffi[9] = "rain_orderbook_cli";
         ffi[10] = "order";

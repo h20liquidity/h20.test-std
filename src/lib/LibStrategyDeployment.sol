@@ -18,6 +18,8 @@ library LibStrategyDeployment {
         uint256 expectedAmount;
         string strategyFile;
         string strategyScenario;
+        string buildPath;
+        string manifestPath;
         IO[] inputVaults;
         IO[] outputVaults;
     }
