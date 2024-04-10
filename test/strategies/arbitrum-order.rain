@@ -45,7 +45,7 @@ scenarios:
         runs: 100
         bindings:
           max-output: 1e18
-          io-ratio: 2e18
+          io-ratio: 1e10
 
 charts:
   arbitrum-simulation:

@@ -11,7 +11,7 @@ import "src/StrategyTests.sol";
 contract DeployedStrategyTest is StrategyTests {
 
     // Inheriting contract defines the fork block number.
-    uint256 constant FORK_BLOCK_NUMBER = 196561436;
+    uint256 constant FORK_BLOCK_NUMBER = 199525152;
 
     // Inheriting contract defines fork selection.
     function selectFork() internal {
@@ -47,7 +47,7 @@ contract DeployedStrategyTest is StrategyTests {
         outputVaults[0] = outputVault;
 
         // Expected calculations context
-        uint256 expectedRatio = 2e18;
+        uint256 expectedRatio = 1e10;
         uint256 expectedAmountOutputMax = 1e18;
 
         // Init params for the strategy
@@ -68,8 +68,101 @@ contract DeployedStrategyTest is StrategyTests {
             outputVaults
         );
 
-        // Assert strategy calculations
+        // Assert strategy calculations by executing order by directly calling 'takeOrder' function
+        // from the OrderBook contract.
         checkStrategyCalculations(strategy);
+    } 
+
+    // Inheriting contract tests OrderBook strategy with test suite.
+    function testDeployedStrategyArbOrder() public {
+        
+        // https://arbiscan.io/address/0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe#code
+        address RED_TOKEN = address(0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe);
+
+        // https://arbiscan.io/address/0x667f41fF7D9c06D2dd18511b32041fC6570Dc468#code
+        address BLUE_TOKEN = address(0x667f41fF7D9c06D2dd18511b32041fC6570Dc468); 
+
+        // Input vaults
+        IO[] memory inputVaults = new IO[](1);
+        IO memory inputVault = IO(BLUE_TOKEN, 18, 1);
+        inputVaults[0] = inputVault;
+
+        // Output vaults
+        IO[] memory outputVaults = new IO[](1);
+        IO memory outputVault = IO(RED_TOKEN, 18, 1);
+        outputVaults[0] = outputVault; 
+
+        // Expected calculations context
+        uint256 expectedRatio = 1e10;
+        uint256 expectedAmountOutputMax = 1e18;
+
+        // Init params for the strategy
+        LibStrategyDeployment.StrategyDeployment memory strategy = LibStrategyDeployment.StrategyDeployment(
+            getEncodedBlueToRedRoute(address(ARB_INSTANCE)),
+            getEncodedRedToBlueRoute(address(ARB_INSTANCE)),
+            0,
+            0,
+            5e17,
+            1e18,
+            expectedRatio,
+            expectedAmountOutputMax,
+            "test/strategies/arbitrum-order.rain",
+            "arbitrum-order-simulations",
+            "./lib/rain.orderbook",
+            "./lib/rain.orderbook/Cargo.toml",
+            inputVaults,
+            outputVaults
+        );
+
+        // Assert strategy calculations by executing order by calling 'arb' function
+        // on the OrderBookV3ArbOrderTaker contract.
+        checkStrategyCalculationsArbOrder(strategy);
+
+    } 
+
+    // Inheriting contract defines the route for the strategy.
+    function getEncodedRedToBlueRoute(address toAddress) internal pure returns(bytes memory) { 
+
+        bytes memory RED_TO_BLUE_ROUTE_PRELUDE = 
+            // process user erc20
+            hex"02"
+            // start token red
+            hex"6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe"
+            // loop iterations
+            hex"01"
+            // share
+            hex"ffff"
+            // swap uni v2
+            hex"00"
+            // pool red/blue
+            hex"96ef2820731E4bd25c0E1809a2C62B18dAa90794"
+            // direction
+            hex"00";
+        
+        return abi.encode(bytes.concat(RED_TO_BLUE_ROUTE_PRELUDE, abi.encodePacked(address(toAddress))));
+
     }
+
+    // Inheriting contract defines the route for the strategy.
+    function getEncodedBlueToRedRoute(address toAddress) internal pure returns(bytes memory) {
+
+        bytes memory BLUE_TO_RED_ROUTE_PRELUDE = 
+            // process user erc20
+            hex"02"
+            // start token red
+            hex"667f41fF7D9c06D2dd18511b32041fC6570Dc468"
+            // loop iterations
+            hex"01"
+            // share
+            hex"ffff"
+            // swap uni v2
+            hex"00"
+            // pool red/blue
+            hex"96ef2820731E4bd25c0E1809a2C62B18dAa90794"
+            // direction
+            hex"01"; 
+
+        return abi.encode(bytes.concat(BLUE_TO_RED_ROUTE_PRELUDE, abi.encodePacked(address(toAddress))));
+    } 
 
 } 
