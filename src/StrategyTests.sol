@@ -28,7 +28,7 @@ contract StrategyTests is OrderBookStrategyTest {
             deal(address(outputToken), ORDER_OWNER, 1e30);
         }
         {
-            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, 1e30);
+            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount);
         }
         {
             (bytes memory bytecode, uint256[] memory constants) = PARSER.parse(
