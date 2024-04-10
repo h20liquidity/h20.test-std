@@ -21,7 +21,7 @@ import {SafeERC20, IERC20} from "openzeppelin-contracts/contracts/token/ERC20/ut
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IRouteProcessor} from "src/interface/IRouteProcessor.sol";
 
-abstract contract OrderBookTestUtils is Test {
+abstract contract OrderBookStrategyTest is Test {
     using SafeERC20 for IERC20;
     using Strings for address;
 

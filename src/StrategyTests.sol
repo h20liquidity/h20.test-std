@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: CAL
 pragma solidity =0.8.19;
-import "test/abstract/OrderBookTestUtils.sol";
-import {LibStrategyDeployment} from "test/lib/LibStrategyDeployment.sol";
-import {LibComposeOrders} from "test/lib/LibComposeOrder.sol";
+import "src/abstract/OrderBookStrategyTest.sol";
+import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
+import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
 
-contract StrategyTests is OrderBookTestUtils { 
+contract StrategyTests is OrderBookStrategyTest { 
     
     function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
         address inputToken;
@@ -30,7 +30,7 @@ contract StrategyTests is OrderBookTestUtils {
         OrderV2 memory order;
         {
             (bytes memory bytecode, uint256[] memory constants) = PARSER.parse(
-                LibComposeOrders.getComposedOrder(vm, strategy.strategyFile, strategy.strategyScenario)
+                LibComposeOrders.getComposedOrder(vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath)
             );
             order = placeOrder(ORDER_OWNER, bytecode, constants, strategy.inputVaults, strategy.outputVaults);
         }
