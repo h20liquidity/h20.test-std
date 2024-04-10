@@ -44,7 +44,7 @@ contract DeployedStrategyTest is StrategyTests {
             0,
             0,
             0,
-            10000e6,
+            0,
             expectedRatio,
             expectedAmountOutputMax,
             "test/strategies/arbitrum-order.rain",
