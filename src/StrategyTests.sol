@@ -6,6 +6,9 @@ import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
 
 contract StrategyTests is OrderBookStrategyTest { 
 
+    // Function to add OrderBook order and deposit tokens.
+    // Input and Output tokens are extracted from `inputVaults` and `outputVaults`,
+    // indexed by `inputTokenIndex` and `outputTokenIndex`. 
     function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy) internal returns(OrderV2 memory order) {
         address inputToken;
         address outputToken;
@@ -36,10 +39,14 @@ contract StrategyTests is OrderBookStrategyTest {
 
     } 
     
+    // Function to assert OrderBook calculations context by calling 'takeOrders' function
+    // directly from the OrderBook contract.
     function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
         OrderV2 memory order = addOrderDepositOutputTokens(strategy);
         {
             vm.recordLogs();
+
+            // `takeOrders()` called
             takeExternalOrder(order,strategy.inputTokenIndex,strategy.outputTokenIndex);
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -50,10 +57,24 @@ contract StrategyTests is OrderBookStrategyTest {
         } 
     } 
 
+    // Function to assert OrderBook calculations context by calling 'arb' function
+    // from the OrderBookV3ArbOrderTaker contract.
     function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
         OrderV2 memory order = addOrderDepositOutputTokens(strategy);
+
+        // Move external pool price in opposite direction that of the order
+        {
+            moveExternalPrice(
+                strategy.inputVaults[strategy.inputTokenIndex].token,
+                strategy.outputVaults[strategy.outputTokenIndex].token,
+                strategy.makerAmount,
+                strategy.makerRoute
+            );
+        }
         {
             vm.recordLogs();
+
+            // `arb()` called
             takeArbOrder(order,strategy.takerRoute,strategy.inputTokenIndex,strategy.outputTokenIndex);
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
