@@ -89,23 +89,21 @@ abstract contract OrderBookStrategyTest is Test {
         vm.stopPrank();
     }
 
-    function takeExternalOrder(OrderV2 memory order, uint256 inputIOIndex, uint256 outputIOIndex)
-        internal
-    {
-        vm.startPrank(APPROVED_EOA); 
+    function takeExternalOrder(OrderV2 memory order, uint256 inputIOIndex, uint256 outputIOIndex) internal {
+        vm.startPrank(APPROVED_EOA);
         address inputTokenAddress = order.validInputs[inputIOIndex].token;
 
-        IERC20(inputTokenAddress).safeApprove(address(ORDERBOOK), type(uint256).max); 
+        IERC20(inputTokenAddress).safeApprove(address(ORDERBOOK), type(uint256).max);
         TakeOrderConfigV2[] memory innerConfigs = new TakeOrderConfigV2[](1);
 
         innerConfigs[0] = TakeOrderConfigV2(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0));
         TakeOrdersConfigV2 memory takeOrdersConfig =
-            TakeOrdersConfigV2(0, type(uint256).max, type(uint256).max, innerConfigs, ""); 
+            TakeOrdersConfigV2(0, type(uint256).max, type(uint256).max, innerConfigs, "");
 
         ORDERBOOK.takeOrders(takeOrdersConfig);
         vm.stopPrank();
     }
-    
+
     function moveExternalPrice(address inputToken, address outputToken, uint256 amountIn, bytes memory encodedRoute)
         public
     {
@@ -131,11 +129,7 @@ abstract contract OrderBookStrategyTest is Test {
         }
     }
 
-    function getCalculationContext(Vm.Log[] memory entries)
-        public
-        pure
-        returns (uint256 amount, uint256 ratio)
-    {
+    function getCalculationContext(Vm.Log[] memory entries) public pure returns (uint256 amount, uint256 ratio) {
         for (uint256 j = 0; j < entries.length; j++) {
             if (entries[j].topics[0] == keccak256("Context(address,uint256[][])")) {
                 (, uint256[][] memory context) = abi.decode(entries[j].data, (address, uint256[][]));
@@ -150,7 +144,7 @@ abstract contract OrderBookStrategyTest is Test {
         IERC20(token).safeTransfer(to, amount);
         vm.stopPrank();
     }
-    
+
     function getOrderContext(uint256 orderHash) internal pure returns (uint256[][] memory context) {
         context = new uint256[][](5);
         {

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: CAL
 pragma solidity =0.8.19;
+
 import "src/StrategyTests.sol";
 
 /// @title DeployedStrategyTest
 /// @notice The contract inherits StrategyTests.sol.
-/// DISP and OrderBook contracts need to be intiliazed as part of the setup for 
+/// DISP and OrderBook contracts need to be intiliazed as part of the setup for
 /// running the tests available in StrategyTests.sol.
 /// This is how the inheriting repo that has the test suite as a dependency is expected
-/// to initialize the suite for a particular fork. 
+/// to initialize the suite for a particular fork.
 contract DeployedStrategyTest is StrategyTests {
-
     // Inheriting contract defines the fork block number.
     uint256 constant FORK_BLOCK_NUMBER = 199525152;
 
@@ -35,7 +35,6 @@ contract DeployedStrategyTest is StrategyTests {
 
     // Inheriting contract tests OrderBook strategy with test suite.
     function testDeployedStrategy() public {
-        
         // Input vaults
         IO[] memory inputVaults = new IO[](1);
         IO memory inputVault = IO(address(0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe), 18, 1);
@@ -71,16 +70,15 @@ contract DeployedStrategyTest is StrategyTests {
         // Assert strategy calculations by executing order by directly calling 'takeOrder' function
         // from the OrderBook contract.
         checkStrategyCalculations(strategy);
-    } 
+    }
 
     // Inheriting contract tests OrderBook strategy with test suite.
     function testDeployedStrategyArbOrder() public {
-        
         // https://arbiscan.io/address/0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe#code
         address RED_TOKEN = address(0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe);
 
         // https://arbiscan.io/address/0x667f41fF7D9c06D2dd18511b32041fC6570Dc468#code
-        address BLUE_TOKEN = address(0x667f41fF7D9c06D2dd18511b32041fC6570Dc468); 
+        address BLUE_TOKEN = address(0x667f41fF7D9c06D2dd18511b32041fC6570Dc468);
 
         // Input vaults
         IO[] memory inputVaults = new IO[](1);
@@ -90,7 +88,7 @@ contract DeployedStrategyTest is StrategyTests {
         // Output vaults
         IO[] memory outputVaults = new IO[](1);
         IO memory outputVault = IO(RED_TOKEN, 18, 1);
-        outputVaults[0] = outputVault; 
+        outputVaults[0] = outputVault;
 
         // Expected calculations context
         uint256 expectedRatio = 1e10;
@@ -117,14 +115,12 @@ contract DeployedStrategyTest is StrategyTests {
         // Assert strategy calculations by executing order by calling 'arb' function
         // on the OrderBookV3ArbOrderTaker contract.
         checkStrategyCalculationsArbOrder(strategy);
-
-    } 
+    }
 
     // Inheriting contract defines the route for the strategy.
-    function getEncodedRedToBlueRoute(address toAddress) internal pure returns(bytes memory) { 
-
-        bytes memory RED_TO_BLUE_ROUTE_PRELUDE = 
-            // process user erc20
+    function getEncodedRedToBlueRoute(address toAddress) internal pure returns (bytes memory) {
+        bytes memory RED_TO_BLUE_ROUTE_PRELUDE =
+        // process user erc20
             hex"02"
             // start token red
             hex"6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe"
@@ -138,16 +134,14 @@ contract DeployedStrategyTest is StrategyTests {
             hex"96ef2820731E4bd25c0E1809a2C62B18dAa90794"
             // direction
             hex"00";
-        
-        return abi.encode(bytes.concat(RED_TO_BLUE_ROUTE_PRELUDE, abi.encodePacked(address(toAddress))));
 
+        return abi.encode(bytes.concat(RED_TO_BLUE_ROUTE_PRELUDE, abi.encodePacked(address(toAddress))));
     }
 
     // Inheriting contract defines the route for the strategy.
-    function getEncodedBlueToRedRoute(address toAddress) internal pure returns(bytes memory) {
-
-        bytes memory BLUE_TO_RED_ROUTE_PRELUDE = 
-            // process user erc20
+    function getEncodedBlueToRedRoute(address toAddress) internal pure returns (bytes memory) {
+        bytes memory BLUE_TO_RED_ROUTE_PRELUDE =
+        // process user erc20
             hex"02"
             // start token red
             hex"667f41fF7D9c06D2dd18511b32041fC6570Dc468"
@@ -160,9 +154,8 @@ contract DeployedStrategyTest is StrategyTests {
             // pool red/blue
             hex"96ef2820731E4bd25c0E1809a2C62B18dAa90794"
             // direction
-            hex"01"; 
+            hex"01";
 
         return abi.encode(bytes.concat(BLUE_TO_RED_ROUTE_PRELUDE, abi.encodePacked(address(toAddress))));
-    } 
-
-} 
+    }
+}

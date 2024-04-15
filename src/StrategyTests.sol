@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: CAL
 pragma solidity =0.8.19;
+
 import "src/abstract/OrderBookStrategyTest.sol";
 import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
 import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
 
-contract StrategyTests is OrderBookStrategyTest { 
-
+contract StrategyTests is OrderBookStrategyTest {
     // Function to add OrderBook order and deposit tokens.
     // Input and Output tokens are extracted from `inputVaults` and `outputVaults`,
-    // indexed by `inputTokenIndex` and `outputTokenIndex`. 
-    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy) internal returns(OrderV2 memory order) {
+    // indexed by `inputTokenIndex` and `outputTokenIndex`.
+    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy)
+        internal
+        returns (OrderV2 memory order)
+    {
         address inputToken;
         address outputToken;
         uint256 inputTokenVaultId;
@@ -32,13 +35,14 @@ contract StrategyTests is OrderBookStrategyTest {
         }
         {
             (bytes memory bytecode, uint256[] memory constants) = PARSER.parse(
-                LibComposeOrders.getComposedOrder(vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath)
+                LibComposeOrders.getComposedOrder(
+                    vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
+                )
             );
             order = placeOrder(ORDER_OWNER, bytecode, constants, strategy.inputVaults, strategy.outputVaults);
         }
+    }
 
-    } 
-    
     // Function to assert OrderBook calculations context by calling 'takeOrders' function
     // directly from the OrderBook contract.
     function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
@@ -47,15 +51,15 @@ contract StrategyTests is OrderBookStrategyTest {
             vm.recordLogs();
 
             // `takeOrders()` called
-            takeExternalOrder(order,strategy.inputTokenIndex,strategy.outputTokenIndex);
+            takeExternalOrder(order, strategy.inputTokenIndex, strategy.outputTokenIndex);
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
-            (uint256 strategyAmount,uint256 strategyRatio) = getCalculationContext(entries);
+            (uint256 strategyAmount, uint256 strategyRatio) = getCalculationContext(entries);
 
             assertEq(strategyRatio, strategy.expectedRatio);
             assertEq(strategyAmount, strategy.expectedAmount);
-        } 
-    } 
+        }
+    }
 
     // Function to assert OrderBook calculations context by calling 'arb' function
     // from the OrderBookV3ArbOrderTaker contract.
@@ -75,14 +79,13 @@ contract StrategyTests is OrderBookStrategyTest {
             vm.recordLogs();
 
             // `arb()` called
-            takeArbOrder(order,strategy.takerRoute,strategy.inputTokenIndex,strategy.outputTokenIndex);
+            takeArbOrder(order, strategy.takerRoute, strategy.inputTokenIndex, strategy.outputTokenIndex);
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
-            (uint256 strategyAmount,uint256 strategyRatio) = getCalculationContext(entries);
+            (uint256 strategyAmount, uint256 strategyRatio) = getCalculationContext(entries);
 
             assertEq(strategyRatio, strategy.expectedRatio);
             assertEq(strategyAmount, strategy.expectedAmount);
-        } 
-
-    }   
+        }
+    }
 }

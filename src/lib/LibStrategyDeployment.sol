@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: CAL
 pragma solidity =0.8.19;
+
 import {Vm} from "forge-std/Vm.sol";
-import {
-    IO
-} from "rain.orderbook.interface/interface/IOrderBookV3.sol";
+import {IO} from "rain.orderbook.interface/interface/IOrderBookV3.sol";
 
 library LibStrategyDeployment {
-
     struct StrategyDeployment {
         bytes makerRoute;
         bytes takerRoute;
@@ -23,5 +21,4 @@ library LibStrategyDeployment {
         IO[] inputVaults;
         IO[] outputVaults;
     }
-
 }
