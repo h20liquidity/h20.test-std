@@ -14,7 +14,7 @@ library LibProcessStream {
     address constant NATIVE_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address constant IMPOSSIBLE_POOL_ADDRESS = 0x0000000000000000000000000000000000000001;
 
-     function processRoute(bytes memory route) internal{
+     function processRoute(bytes memory route) internal pure {
         uint256 stream = InputStream.createStream(route);
         while (stream.isNotEmpty()) {
             uint8 commandCode = stream.readUint8(); 
@@ -25,38 +25,38 @@ library LibProcessStream {
         }
     }
 
-    function processMyERC20(uint256 stream) internal {
+    function processMyERC20(uint256 stream) internal pure {
         address token = stream.readAddress();
         console2.log("processMyERC20() token : %s", token);
         distributeAndSwap(stream);
     }
 
-    function processUserERC20(uint256 stream) private {
+    function processUserERC20(uint256 stream) internal pure {
         address token = stream.readAddress();
         console2.log("processUserERC20() token : %s", token);
         distributeAndSwap(stream);
     }
-    function processNative(uint256 stream) private {
+    function processNative(uint256 stream) internal pure {
         console2.log("processNative() token : ", NATIVE_ADDRESS);
         distributeAndSwap(stream);
     }
-    function processOnePool(uint256 stream) private {
+    function processOnePool(uint256 stream) internal pure {
         address token = stream.readAddress();
         console2.log("processOnePool() token : ", token);
         distributeAndSwap(stream);
     } 
 
-     function distributeAndSwap(uint256 stream) private {
+     function distributeAndSwap(uint256 stream) internal pure {
         uint8 num = stream.readUint8();
         unchecked {
             for (uint256 i = 0; i < num; ++i) {
-                uint16 share = stream.readUint16();
+                stream.readUint16();
                 swap(stream);
             }
         }
     }
 
-    function swap(uint256 stream) private {
+    function swap(uint256 stream) internal pure {
         uint8 poolType = stream.readUint8();
         if (poolType == 0) swapUniV2(stream);
         else if (poolType == 1) swapUniV3(stream);
@@ -64,7 +64,7 @@ library LibProcessStream {
         
     }
 
-     function swapUniV2(uint256 stream) private {
+     function swapUniV2(uint256 stream) internal pure {
         address pool = stream.readAddress();
         uint8 direction = stream.readUint8();
         address to = stream.readAddress();
@@ -75,7 +75,7 @@ library LibProcessStream {
         console2.log("to : ",to);        
     }
 
-    function swapUniV3(uint256 stream) private {
+    function swapUniV3(uint256 stream) internal pure {
         address pool = stream.readAddress();
         bool zeroForOne = stream.readUint8() > 0;
         address recipient = stream.readAddress();
@@ -86,7 +86,7 @@ library LibProcessStream {
         console2.log("recipient : ",recipient);
     }
 
-    function wrapNative(uint256 stream) private {
+    function wrapNative(uint256 stream) internal pure {
         uint8 directionAndFake = stream.readUint8();
         address to = stream.readAddress();
 
