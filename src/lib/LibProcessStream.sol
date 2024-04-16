@@ -3,7 +3,7 @@ pragma solidity =0.8.19;
 
 import {Vm} from "forge-std/Vm.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
-import {InputStream} from "sushiswap/protocols/route-processor/contracts/InputStream.sol";
+import {InputStream} from "lib/sushiswap/protocols/route-processor/contracts/InputStream.sol";
 import "forge-std/console2.sol";
 
 library LibProcessStream {
