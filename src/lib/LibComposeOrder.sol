@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: CAL
 pragma solidity =0.8.19;
+
 import {Vm} from "forge-std/Vm.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
@@ -7,10 +8,13 @@ library LibComposeOrders {
     using Strings for address;
     using Strings for uint256;
 
-    function getComposedOrder(Vm vm, string memory filePath, string memory scenario, string memory buildPath, string memory manifestPath)
-        internal
-        returns (bytes memory trancheOrder)
-    {
+    function getComposedOrder(
+        Vm vm,
+        string memory filePath,
+        string memory scenario,
+        string memory buildPath,
+        string memory manifestPath
+    ) internal returns (bytes memory trancheOrder) {
         string[] memory ffi = new string[](16);
         ffi[0] = "nix";
         ffi[1] = "develop";
@@ -28,7 +32,7 @@ library LibComposeOrders {
         ffi[13] = filePath;
         ffi[14] = "-s";
         ffi[15] = scenario;
-      
-        trancheOrder = vm.ffi(ffi);        
-    }     
+
+        trancheOrder = vm.ffi(ffi);
+    }
 }
