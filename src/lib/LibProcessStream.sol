@@ -36,16 +36,20 @@ library LibProcessStream {
         uint256 stream = InputStream.createStream(route);        
         while (stream.isNotEmpty()) {
             uint8 commandCode = stream.readUint8();
-            if (commandCode == 1) processedRoute.processedMyERC20 = processMyERC20(stream);
-            else if (commandCode == 2) processedRoute.processedUserERC20 = processUserERC20(stream);
-            else if (commandCode == 3) processedRoute.processedNative = processNative(stream);
-            else if (commandCode == 4) processedRoute.processedOnePool = processOnePool(stream);
+            if (commandCode == 1){
+                processedRoute.processedMyERC20 = processMyERC20(stream);
+                logRoute(processedRoute.processedMyERC20);
+            }else if (commandCode == 2){
+                processedRoute.processedUserERC20 = processUserERC20(stream);
+                logRoute(processedRoute.processedUserERC20); 
+            }else if (commandCode == 3){
+                processedRoute.processedNative = processNative(stream);
+                logRoute(processedRoute.processedNative); 
+            }else if (commandCode == 4){
+                processedRoute.processedOnePool = processOnePool(stream);
+                logRoute(processedRoute.processedOnePool); 
+            }
         }
-        logRoute(processedRoute.processedMyERC20);
-        logRoute(processedRoute.processedUserERC20); 
-        logRoute(processedRoute.processedNative); 
-        logRoute(processedRoute.processedOnePool); 
-
     }
 
     /// Log the processed route data.
@@ -75,9 +79,10 @@ library LibProcessStream {
         return distributeAndSwap(stream, NATIVE_ADDRESS);
     }
 
-    function processOnePool(uint256 stream) internal pure returns(RouteProcessorData[] memory){
+    function processOnePool(uint256 stream) internal pure returns(RouteProcessorData[] memory processedRoutes){
         address token = stream.readAddress();
-        return distributeAndSwap(stream, token);
+        processedRoutes = new RouteProcessorData[](1);
+        processedRoutes[0] = swap(stream, token);
     }
 
     function distributeAndSwap(uint256 stream, address tokenIn) internal pure returns(RouteProcessorData[] memory processedRoutes){
