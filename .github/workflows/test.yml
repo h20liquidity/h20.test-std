@@ -10,6 +10,7 @@ jobs:
     env:
       RPC_URL_ARBITRUM: ${{ secrets. RPC_URL_ARBITRUM}}
       RPC_URL_ETH: ${{ secrets. RPC_URL_ETH}}
+      CI_DEPLOY_SEPOLIA_RPC_URL: ${{ secrets.CI_DEPLOY_SEPOLIA_RPC_URL || vars.CI_DEPLOY_SEPOLIA_RPC_URL }}
 
     steps:
       - uses: actions/checkout@v4
@@ -25,5 +26,5 @@ jobs:
 
       - run: ./prep-tauri.sh
         working-directory: lib/rain.orderbook
-        
+
       - run: nix run .#rainix-sol-test
