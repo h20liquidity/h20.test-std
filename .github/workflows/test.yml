@@ -11,6 +11,7 @@ jobs:
       RPC_URL_ARBITRUM: ${{ secrets. RPC_URL_ARBITRUM}}
       RPC_URL_ETH: ${{ secrets. RPC_URL_ETH}}
       CI_DEPLOY_SEPOLIA_RPC_URL: ${{ secrets.CI_DEPLOY_SEPOLIA_RPC_URL || vars.CI_DEPLOY_SEPOLIA_RPC_URL }}
+      CI_FORK_SEPOLIA_BLOCK_NUMBER: ${{ vars.CI_FORK_SEPOLIA_BLOCK_NUMBER }}
 
     steps:
       - uses: actions/checkout@v4
