@@ -20,7 +20,11 @@ bytecode_hash = "none"
 cbor_metadata = false
 
 # Needed for dotrain compose
-ffi = true 
+ffi = true
 
 [fuzz]
 runs = 1024
+
+remappings = [
+    "rain.math.fixedpoint/=lib/rain.orderbook/lib/rain.interpreter/lib/rain.math.fixedpoint/src/",
+]
