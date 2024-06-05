@@ -3,7 +3,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
-solc = "0.8.19"
+solc = "0.8.25"
 
 # Try to make sure the optimizer doesn't touch the output in a way that can break
 # source maps for debugging.
