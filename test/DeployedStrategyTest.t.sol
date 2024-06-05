@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CAL
-pragma solidity =0.8.19;
+pragma solidity =0.8.25;
 
 import "src/StrategyTests.sol";
 
@@ -11,7 +11,7 @@ import "src/StrategyTests.sol";
 /// to initialize the suite for a particular fork.
 contract DeployedStrategyTest is StrategyTests {
     // Inheriting contract defines the fork block number.
-    uint256 constant FORK_BLOCK_NUMBER = 199525152;
+    uint256 constant FORK_BLOCK_NUMBER = 218683702;
 
     // Inheriting contract defines fork selection.
     function selectFork() internal {

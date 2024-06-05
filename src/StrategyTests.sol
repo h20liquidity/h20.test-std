@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CAL
-pragma solidity =0.8.19;
+pragma solidity =0.8.25;
 
 import "src/abstract/OrderBookStrategyTest.sol";
 import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
