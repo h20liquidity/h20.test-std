@@ -3,20 +3,27 @@ pragma solidity =0.8.25;
 
 import {Vm} from "forge-std/Vm.sol";
 import {Test, console2, stdError} from "forge-std/Test.sol";
-import {IOrderBookV3ArbOrderTaker} from "rain.orderbook.interface/interface/IOrderBookV3ArbOrderTaker.sol";
 import {IParserV1} from "rain.interpreter.interface/interface/IParserV1.sol";
+import {IParserV2} from "rain.interpreter.interface/interface/unstable/IParserV2.sol";
 import {IExpressionDeployerV3} from "rain.interpreter.interface/interface/IExpressionDeployerV3.sol";
-import {IInterpreterV2} from "rain.interpreter.interface/interface/IInterpreterV2.sol";
+import {IInterpreterV3} from "rain.interpreter.interface/interface/unstable/IInterpreterV3.sol";
 import {IInterpreterStoreV2} from "rain.interpreter.interface/interface/IInterpreterStoreV2.sol";
 import {EvaluableConfigV3, SignedContextV1} from "rain.interpreter.interface/interface/IInterpreterCallerV2.sol";
 import {
     IOrderBookV3,
-    IO,
-    OrderV2,
-    OrderConfigV2,
-    TakeOrderConfigV2,
-    TakeOrdersConfigV2
+    IO
 } from "rain.orderbook.interface/interface/IOrderBookV3.sol";
+import {
+    IOrderBookV4,
+    OrderV3,
+    OrderConfigV3,
+    TakeOrderConfigV3,
+    TakeOrdersConfigV3,
+    ActionV1,
+    EvaluableV3
+}from "rain.orderbook.interface/interface/unstable/IOrderBookV4.sol";
+import {IOrderBookV4ArbOrderTaker} from "rain.orderbook.interface/interface/unstable/IOrderBookV4ArbOrderTaker.sol"; 
+
 import {SafeERC20, IERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IRouteProcessor} from "src/interface/IRouteProcessor.sol";
@@ -30,24 +37,24 @@ abstract contract OrderBookStrategyTest is Test {
     address public APPROVED_EOA;
     address public ORDER_OWNER;
 
-    IParserV1 public PARSER;
+    IParserV2 public PARSER;
     IExpressionDeployerV3 public EXPRESSION_DEPLOYER;
-    IInterpreterV2 public INTERPRETER;
+    IInterpreterV3 public INTERPRETER;
     IInterpreterStoreV2 public STORE;
-    IOrderBookV3 public ORDERBOOK;
-    IOrderBookV3ArbOrderTaker public ARB_INSTANCE;
+    IOrderBookV4 public ORDERBOOK;
+    IOrderBookV4ArbOrderTaker public ARB_INSTANCE;
     IRouteProcessor public ROUTE_PROCESSOR;
 
-    function depositTokens(address owner, address token, uint256 vaultId, uint256 amount) internal {
+    function depositTokens(address owner, address token, uint256 vaultId, uint256 amount, ActionV1[] memory actionV1) internal {
         vm.startPrank(owner);
         IERC20(token).safeApprove(address(ORDERBOOK), amount);
-        ORDERBOOK.deposit(address(token), vaultId, amount);
+        ORDERBOOK.deposit2(address(token), vaultId, amount, actionV1);
         vm.stopPrank();
     }
 
-    function withdrawTokens(address owner, address token, uint256 vaultId, uint256 amount) internal {
+    function withdrawTokens(address owner, address token, uint256 vaultId, uint256 amount, ActionV1[] memory actionV1) internal {
         vm.startPrank(owner);
-        ORDERBOOK.withdraw(address(token), vaultId, amount);
+        ORDERBOOK.withdraw2(address(token), vaultId, amount, actionV1);
         vm.stopPrank();
     }
 
@@ -58,49 +65,56 @@ abstract contract OrderBookStrategyTest is Test {
     function placeOrder(
         address orderOwner,
         bytes memory bytecode,
-        uint256[] memory constants,
         IO[] memory inputs,
-        IO[] memory outputs
-    ) internal returns (OrderV2 memory order) {
-        EvaluableConfigV3 memory evaluableConfig = EvaluableConfigV3(EXPRESSION_DEPLOYER, bytecode, constants);
-        OrderConfigV2 memory orderConfig = OrderConfigV2(inputs, outputs, evaluableConfig, "");
+        IO[] memory outputs,
+        ActionV1[] memory actionV1
+    ) internal returns (OrderV3 memory order) { 
+
+        EvaluableV3 memory evaluableConfig = EvaluableV3(INTERPRETER, STORE ,bytecode);
+        OrderConfigV3 memory orderV3Config = OrderConfigV3(evaluableConfig, inputs, outputs, "", "", "");
 
         vm.startPrank(orderOwner);
         vm.recordLogs();
-        (bool stateChanged) = ORDERBOOK.addOrder(orderConfig);
+        (bool stateChanged) = ORDERBOOK.addOrder2(orderV3Config,actionV1);
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        assertEq(entries.length, 3);
-        (,, order,) = abi.decode(entries[2].data, (address, address, OrderV2, bytes32));
+        assertEq(entries.length, 1);
+        (,, order) = abi.decode(entries[0].data, (address, bytes32, OrderV3));
         assertEq(order.owner, orderOwner);
         assertEq(stateChanged, true);
     }
 
-    function takeArbOrder(OrderV2 memory order, bytes memory route, uint256 inputIOIndex, uint256 outputIOIndex)
+    function takeArbOrder(OrderV3 memory order, bytes memory route, uint256 inputIOIndex, uint256 outputIOIndex)
         internal
     {
         vm.startPrank(APPROVED_EOA);
 
-        TakeOrderConfigV2[] memory innerConfigs = new TakeOrderConfigV2[](1);
+        EvaluableV3 memory arbEvaluableV3Config = EvaluableV3(
+            IInterpreterV3(0x0000000000000000000000000000000000000000),
+            IInterpreterStoreV2(0x0000000000000000000000000000000000000000),
+            ""
+        );
+        TakeOrderConfigV3[] memory innerConfigs = new TakeOrderConfigV3[](1); 
+        innerConfigs[0] = TakeOrderConfigV3(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0)); 
 
-        innerConfigs[0] = TakeOrderConfigV2(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0));
-        TakeOrdersConfigV2 memory takeOrdersConfig =
-            TakeOrdersConfigV2(0, type(uint256).max, type(uint256).max, innerConfigs, route);
-        ARB_INSTANCE.arb(takeOrdersConfig, 0);
+        TakeOrdersConfigV3 memory takeOrdersConfig =
+            TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, route);
+        ARB_INSTANCE.arb2(takeOrdersConfig, 0, arbEvaluableV3Config);
         vm.stopPrank();
     }
 
-    function takeExternalOrder(OrderV2 memory order, uint256 inputIOIndex, uint256 outputIOIndex) internal {
+    function takeExternalOrder(OrderV3 memory order, uint256 inputIOIndex, uint256 outputIOIndex) internal {
         vm.startPrank(APPROVED_EOA);
+
         address inputTokenAddress = order.validInputs[inputIOIndex].token;
-
         IERC20(inputTokenAddress).safeApprove(address(ORDERBOOK), type(uint256).max);
-        TakeOrderConfigV2[] memory innerConfigs = new TakeOrderConfigV2[](1);
 
-        innerConfigs[0] = TakeOrderConfigV2(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0));
-        TakeOrdersConfigV2 memory takeOrdersConfig =
-            TakeOrdersConfigV2(0, type(uint256).max, type(uint256).max, innerConfigs, "");
+        TakeOrderConfigV3[] memory innerConfigs = new TakeOrderConfigV3[](1);
 
-        ORDERBOOK.takeOrders(takeOrdersConfig);
+        innerConfigs[0] = TakeOrderConfigV3(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0));
+        TakeOrdersConfigV3 memory takeOrdersConfig =
+            TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, "");
+
+        ORDERBOOK.takeOrders2(takeOrdersConfig);
         vm.stopPrank();
     }
 

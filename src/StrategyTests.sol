@@ -11,7 +11,7 @@ contract StrategyTests is OrderBookStrategyTest {
     // indexed by `inputTokenIndex` and `outputTokenIndex`.
     function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy)
         internal
-        returns (OrderV2 memory order)
+        returns (OrderV3 memory order)
     {
         address inputToken;
         address outputToken;
@@ -31,22 +31,22 @@ contract StrategyTests is OrderBookStrategyTest {
             deal(address(outputToken), ORDER_OWNER, 1e30);
         }
         {
-            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount);
+            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new ActionV1[](0));
         }
         {
-            (bytes memory bytecode, uint256[] memory constants) = PARSER.parse(
+            bytes memory bytecode = PARSER.parse2(
                 LibComposeOrders.getComposedOrder(
                     vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
                 )
             );
-            order = placeOrder(ORDER_OWNER, bytecode, constants, strategy.inputVaults, strategy.outputVaults);
+            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, new ActionV1[](0));
         }
     }
 
     // Function to assert OrderBook calculations context by calling 'takeOrders' function
     // directly from the OrderBook contract.
     function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
-        OrderV2 memory order = addOrderDepositOutputTokens(strategy);
+        OrderV3 memory order = addOrderDepositOutputTokens(strategy);
         {
             vm.recordLogs();
 
@@ -64,7 +64,7 @@ contract StrategyTests is OrderBookStrategyTest {
     // Function to assert OrderBook calculations context by calling 'arb' function
     // from the OrderBookV3ArbOrderTaker contract.
     function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
-        OrderV2 memory order = addOrderDepositOutputTokens(strategy);
+        OrderV3 memory order = addOrderDepositOutputTokens(strategy);
 
         // Move external pool price in opposite direction that of the order
         {

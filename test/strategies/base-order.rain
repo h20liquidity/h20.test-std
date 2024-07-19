@@ -1,0 +1,73 @@
+networks:
+  base-test: 
+    rpc: https://mainnet.base.org
+    chain-id: 8453 
+    network-id: 8453 
+    currency: ETH
+
+subgraphs:
+  base-test: https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/ob4-base/0.1/gn
+  
+orderbooks:
+  base-test:
+    address: 0xA2f56F8F74B7d04d61f281BE6576b6155581dcBA
+    network: base-test
+    subgraph: base-test
+
+deployers:
+  base-test:
+    address: 0x56394785a22b3BE25470a0e03eD9E0a939C47b9b
+    network: base-test
+
+tokens:
+  base-red:
+    network: base-test
+    address: 0x222789334D44bB5b2364939477E15A6c981Ca165
+  base-blue:
+    network: base-test
+    address: 0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe
+
+
+orders:
+  base-order:
+    inputs:
+      - token: base-red
+        vault-id: 0x58f0bb181e38b0bfecbf503744e46ee3fe517425c56655288f640ad008930ca5
+    outputs:
+      - token: base-blue
+        vault-id: 0x58f0bb181e38b0bfecbf503744e46ee3fe517425c56655288f640ad008930ca5
+
+scenarios:
+    base-order-simulations:
+        network: base-test
+        deployer: base-test
+        orderbook: base-test
+        runs: 100
+        bindings:
+          max-output: 1
+          io-ratio: 0.00000001
+
+charts:
+  base-simulation:
+    scenario: base-order-simulations
+    plots:
+      $ amount vs ratio:
+        marks:
+          - type: line
+            options:
+              x: 0.0
+              y: 0.1
+
+deployments:
+  buy-order:
+    scenario: base-order-simulations
+    order: base-order
+
+---
+#max-output !OrderBook max output
+#io-ratio !OrderBook order ratio
+#calculate-io
+  _ _: max-output io-ratio;
+
+#handle-io
+  :;
