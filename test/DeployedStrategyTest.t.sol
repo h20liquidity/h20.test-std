@@ -42,7 +42,7 @@ contract DeployedStrategyTest is StrategyTests {
         ORDER_OWNER = address(0x5e01e44aE1969e16B9160d903B6F2aa991a37B21); 
 
     }
-    // [""]
+
     // Inheriting contract tests OrderBook strategy with test suite.
     function testDeployedStrategy() public {
         // Input vaults
@@ -135,13 +135,3 @@ contract DeployedStrategyTest is StrategyTests {
         return abi.encode(BLUE_TO_RED_ROUTE);
     }
 }
-
-// 02
-// 222789334D44bB5b2364939477E15A6c981Ca165
-// 01
-// ffff
-// 00
-// 822abC8C238cFe43344C5db8629ed7e626fda08c
-// 01
-// F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88
-// 000bb8
