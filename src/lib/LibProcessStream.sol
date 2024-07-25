@@ -26,7 +26,7 @@ library LibProcessStream {
     }
 
     /// Struct representing processed route data.
-    struct ProcessedRoute{
+    struct RouteProcessor4ProccessedRoute{
         RouteProcessor4Route[] processedMyERC20;
         RouteProcessor4Route[] processedUserERC20;
         RouteProcessor4Route[] processedNative;
@@ -34,7 +34,7 @@ library LibProcessStream {
     }
 
     /// Process a route stream.
-    function processRoute(bytes memory route) internal view returns(ProcessedRoute memory processedRoute){
+    function processRoute(bytes memory route) internal view returns(RouteProcessor4ProccessedRoute memory processedRoute){
         uint256 stream = InputStream.createStream(route);        
         while (stream.isNotEmpty()) {
             uint8 commandCode = stream.readUint8();

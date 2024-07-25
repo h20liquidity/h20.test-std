@@ -17,7 +17,7 @@ contract ProcessRouteTest is Test {
         bytes memory uniV3Stream =
             hex"0299b2B1A2aDB02B38222ADcD057783D7e5D1FCC7D01ffff011536EE1506e24e5A36Be99C73136cD82907A902E000389879e0156033202C44BF784ac18fC02edeE4f01833589fCD6eDb6E08f4c7C32D4f71b54bdA0291301ffff01C18F50d6A832f12F6DcAaeEe8D0c87A65B96787E00F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88";
 
-        LibProcessStream.ProcessedRoute memory processedRoute = LibProcessStream.processRoute(uniV3Stream);
+        LibProcessStream.RouteProcessor4ProccessedRoute memory processedRoute = LibProcessStream.processRoute(uniV3Stream);
 
         // Assert Processed Routes
         assertEq(processedRoute.processedMyERC20.length, 1);
@@ -45,7 +45,7 @@ contract ProcessRouteTest is Test {
         bytes memory uniV2Stream =
             hex"02222789334D44bB5b2364939477E15A6c981Ca16501ffff00822abC8C238cFe43344C5db8629ed7e626fda08c01F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88000bb8";
 
-        LibProcessStream.ProcessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
+        LibProcessStream.RouteProcessor4ProccessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
 
         // Assert Processed Routes
         assertEq(processedRoute.processedMyERC20.length, 0);
@@ -67,7 +67,7 @@ contract ProcessRouteTest is Test {
         bytes memory uniV2Stream =
             hex"026B175474E89094C44Da98b954EedeAC495271d0F02155505bebc44782c7db0a1a60cb6fe97d0b483032ff1c7010001e43ca1Dee3F0fc1e2df73A0745674545F11A59F5A0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48ffff05a5407eae9ba41422680e2e00537571bcc53efbfd010002F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88dAC17F958D2ee523a2206206994597C13D831ec701A0b86991c6218b36c1d19D4a2e9Eb0cE3606eB4801ffff05a5407eae9ba41422680e2e00537571bcc53efbfd010102F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88dAC17F958D2ee523a2206206994597C13D831ec7";
 
-        LibProcessStream.ProcessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
+        LibProcessStream.RouteProcessor4ProccessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
 
         // Assert Processed Routes
         assertEq(processedRoute.processedMyERC20.length, 1);

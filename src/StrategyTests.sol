@@ -91,13 +91,6 @@ contract StrategyTests is OrderBookStrategyTest {
         }
     }
 
-    function getNamespace(address orderOwner, address contractAddress) internal pure returns (FullyQualifiedNamespace) {
-        return LibNamespace.qualifyNamespace(
-            StateNamespace.wrap(uint256(uint160(orderOwner))),
-            contractAddress
-        );
-    }
-
     function evalExpression(
         LibStrategyDeployment.StrategyDeployment memory strategy,
         FullyQualifiedNamespace namespace,
