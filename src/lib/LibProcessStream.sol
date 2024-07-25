@@ -18,7 +18,7 @@ library LibProcessStream {
     address constant NATIVE_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     /// Struct representing relevant data for a route.
-    struct RouteProcessorData{
+    struct RouteProcessor4Route{
         address tokenIn;
         address tokenOut;
         address pool;
@@ -27,10 +27,10 @@ library LibProcessStream {
 
     /// Struct representing processed route data.
     struct ProcessedRoute{
-        RouteProcessorData[] processedMyERC20;
-        RouteProcessorData[] processedUserERC20;
-        RouteProcessorData[] processedNative;
-        RouteProcessorData[] processedOnePool;
+        RouteProcessor4Route[] processedMyERC20;
+        RouteProcessor4Route[] processedUserERC20;
+        RouteProcessor4Route[] processedNative;
+        RouteProcessor4Route[] processedOnePool;
     }
 
     /// Process a route stream.
@@ -56,7 +56,7 @@ library LibProcessStream {
     }
 
     /// Log the processed route data.
-    function logRoute(RouteProcessorData[] memory routeData) internal pure {
+    function logRoute(RouteProcessor4Route[] memory routeData) internal pure {
         if(routeData.length > 0){
             for(uint256 i = 0 ; i < routeData.length; i++){
                 console2.log("----------------------Processed Route----------------------");
@@ -68,29 +68,29 @@ library LibProcessStream {
         }
     }  
     
-    function processMyERC20(uint256 stream) internal view returns(RouteProcessorData[] memory){
+    function processMyERC20(uint256 stream) internal view returns(RouteProcessor4Route[] memory){
         address token = stream.readAddress();
         return distributeAndSwap(stream,token);
     }
 
-    function processUserERC20(uint256 stream) internal view returns(RouteProcessorData[] memory){
+    function processUserERC20(uint256 stream) internal view returns(RouteProcessor4Route[] memory){
         address token = stream.readAddress();
         return distributeAndSwap(stream, token);
     }
 
-    function processNative(uint256 stream) internal view returns(RouteProcessorData[] memory){
+    function processNative(uint256 stream) internal view returns(RouteProcessor4Route[] memory){
         return distributeAndSwap(stream, NATIVE_ADDRESS);
     }
 
-    function processOnePool(uint256 stream) internal view returns(RouteProcessorData[] memory processedRoutes){
+    function processOnePool(uint256 stream) internal view returns(RouteProcessor4Route[] memory processedRoutes){
         address token = stream.readAddress();
-        processedRoutes = new RouteProcessorData[](1);
+        processedRoutes = new RouteProcessor4Route[](1);
         processedRoutes[0] = swap(stream, token);
     }
 
-    function distributeAndSwap(uint256 stream, address tokenIn) internal view returns(RouteProcessorData[] memory processedRoutes){
+    function distributeAndSwap(uint256 stream, address tokenIn) internal view returns(RouteProcessor4Route[] memory processedRoutes){
         uint8 num = stream.readUint8(); 
-        processedRoutes = new RouteProcessorData[](num);
+        processedRoutes = new RouteProcessor4Route[](num);
         unchecked {
             for (uint256 i = 0; i < num; ++i) {
                 stream.readUint16();
@@ -99,7 +99,7 @@ library LibProcessStream {
         }
     }
 
-    function swap(uint256 stream, address tokenIn) internal view returns(RouteProcessorData memory routeData){
+    function swap(uint256 stream, address tokenIn) internal view returns(RouteProcessor4Route memory routeData){
         uint8 poolType = stream.readUint8();
         if (poolType == 0) routeData = swapUniV2(stream,tokenIn);
         else if (poolType == 1) routeData = swapUniV3(stream,tokenIn);
@@ -108,32 +108,32 @@ library LibProcessStream {
         else revert('RouteProcessor: Unknown pool type');
     }
 
-    function swapUniV2(uint256 stream, address tokenIn) internal view returns(RouteProcessorData memory routeData){
+    function swapUniV2(uint256 stream, address tokenIn) internal view returns(RouteProcessor4Route memory routeData){
         address pool = stream.readAddress();
         uint8 direction = stream.readUint8() ;
         address to = stream.readAddress();
         uint24 fee = stream.readUint24();
         (fee);
         address tokenOut = direction == 1 ? IUniswapV2Pair(pool).token1() : IUniswapV2Pair(pool).token0(); 
-        routeData = RouteProcessorData(tokenIn,tokenOut,pool,to);
+        routeData = RouteProcessor4Route(tokenIn,tokenOut,pool,to);
     }
 
-    function swapUniV3(uint256 stream, address tokenIn) internal view returns(RouteProcessorData memory routeData){
+    function swapUniV3(uint256 stream, address tokenIn) internal view returns(RouteProcessor4Route memory routeData){
         address pool = stream.readAddress();
         uint8 direction = stream.readUint8() ;
         address recipient = stream.readAddress();
         address tokenOut = direction == 1 ? IUniswapV2Pair(pool).token1() : IUniswapV2Pair(pool).token0(); 
-        routeData = RouteProcessorData(tokenIn,tokenOut,pool,recipient);
+        routeData = RouteProcessor4Route(tokenIn,tokenOut,pool,recipient);
     }
 
-    function wrapNative(uint256 stream, address tokenIn) internal pure returns(RouteProcessorData memory routeData){
+    function wrapNative(uint256 stream, address tokenIn) internal pure returns(RouteProcessor4Route memory routeData){
         uint8 directionAndFake = stream.readUint8();
         (directionAndFake);
         address to = stream.readAddress();
-        routeData = RouteProcessorData(tokenIn,tokenIn,NATIVE_ADDRESS,to);
+        routeData = RouteProcessor4Route(tokenIn,tokenIn,NATIVE_ADDRESS,to);
     } 
 
-    function swapCurve(uint256 stream, address tokenIn) internal pure returns(RouteProcessorData memory routeData){
+    function swapCurve(uint256 stream, address tokenIn) internal pure returns(RouteProcessor4Route memory routeData){
         address pool = stream.readAddress();
         uint8 poolType = stream.readUint8();
         int128 fromIndex = int8(stream.readUint8());
@@ -141,7 +141,7 @@ library LibProcessStream {
         address to = stream.readAddress();
         address tokenOut = stream.readAddress(); 
         (poolType,fromIndex,toIndex);
-        routeData = RouteProcessorData(tokenIn,tokenOut,pool,to);
+        routeData = RouteProcessor4Route(tokenIn,tokenOut,pool,to);
     } 
 
 
