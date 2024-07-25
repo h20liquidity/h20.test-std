@@ -37,29 +37,29 @@ abstract contract OrderBookStrategyTest is Test {
     address public APPROVED_EOA;
     address public ORDER_OWNER;
 
-    IParserV2 public PARSER;
-    IExpressionDeployerV3 public EXPRESSION_DEPLOYER;
-    IInterpreterV3 public INTERPRETER;
-    IInterpreterStoreV2 public STORE;
-    IOrderBookV4 public ORDERBOOK;
-    IOrderBookV4ArbOrderTaker public ARB_INSTANCE;
-    IRouteProcessor public ROUTE_PROCESSOR; 
+    IParserV2 public iParser;
+    IExpressionDeployerV3 public iExpressionDeployer;
+    IInterpreterV3 public iInterpreter;
+    IInterpreterStoreV2 public iStore;
+    IOrderBookV4 public iOrderBook;
+    IOrderBookV4ArbOrderTaker public iArbInstance;
+    IRouteProcessor public iRouteProcessor; 
 
     function depositTokens(address owner, address token, uint256 vaultId, uint256 amount, ActionV1[] memory actionV1) internal {
         vm.startPrank(owner);
-        IERC20(token).safeApprove(address(ORDERBOOK), amount);
-        ORDERBOOK.deposit2(address(token), vaultId, amount, actionV1);
+        IERC20(token).safeApprove(address(iOrderBook), amount);
+        iOrderBook.deposit2(address(token), vaultId, amount, actionV1);
         vm.stopPrank();
     }
 
     function withdrawTokens(address owner, address token, uint256 vaultId, uint256 amount, ActionV1[] memory actionV1) internal {
         vm.startPrank(owner);
-        ORDERBOOK.withdraw2(address(token), vaultId, amount, actionV1);
+        iOrderBook.withdraw2(address(token), vaultId, amount, actionV1);
         vm.stopPrank();
     }
 
     function getVaultBalance(address owner, address token, uint256 vaultId) internal view returns (uint256) {
-        return ORDERBOOK.vaultBalance(owner, token, vaultId);
+        return iOrderBook.vaultBalance(owner, token, vaultId);
     }
 
     function placeOrder(
@@ -70,12 +70,12 @@ abstract contract OrderBookStrategyTest is Test {
         ActionV1[] memory actionV1
     ) internal returns (OrderV3 memory order) { 
 
-        EvaluableV3 memory evaluableConfig = EvaluableV3(INTERPRETER, STORE ,bytecode);
+        EvaluableV3 memory evaluableConfig = EvaluableV3(iInterpreter, iStore ,bytecode);
         OrderConfigV3 memory orderV3Config = OrderConfigV3(evaluableConfig, inputs, outputs, "", "", "");
 
         vm.startPrank(orderOwner);
         vm.recordLogs();
-        (bool stateChanged) = ORDERBOOK.addOrder2(orderV3Config,actionV1);
+        (bool stateChanged) = iOrderBook.addOrder2(orderV3Config,actionV1);
         Vm.Log[] memory entries = vm.getRecordedLogs();
         assertEq(entries.length, 1);
         (,, order) = abi.decode(entries[0].data, (address, bytes32, OrderV3));
@@ -98,7 +98,7 @@ abstract contract OrderBookStrategyTest is Test {
 
         TakeOrdersConfigV3 memory takeOrdersConfig =
             TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, route);
-        ARB_INSTANCE.arb2(takeOrdersConfig, 0, arbEvaluableV3Config);
+        iArbInstance.arb2(takeOrdersConfig, 0, arbEvaluableV3Config);
         vm.stopPrank();
     }
 
@@ -106,7 +106,7 @@ abstract contract OrderBookStrategyTest is Test {
         vm.startPrank(APPROVED_EOA);
 
         address inputTokenAddress = order.validInputs[inputIOIndex].token;
-        IERC20(inputTokenAddress).safeApprove(address(ORDERBOOK), type(uint256).max);
+        IERC20(inputTokenAddress).safeApprove(address(iOrderBook), type(uint256).max);
 
         TakeOrderConfigV3[] memory innerConfigs = new TakeOrderConfigV3[](1);
 
@@ -114,7 +114,7 @@ abstract contract OrderBookStrategyTest is Test {
         TakeOrdersConfigV3 memory takeOrdersConfig =
             TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, "");
 
-        ORDERBOOK.takeOrders2(takeOrdersConfig);
+        iOrderBook.takeOrders2(takeOrdersConfig);
         vm.stopPrank();
     }
 
@@ -122,9 +122,9 @@ abstract contract OrderBookStrategyTest is Test {
         public
     {
         vm.startPrank(EXTERNAL_EOA);
-        IERC20(inputToken).safeApprove(address(ROUTE_PROCESSOR), amountIn);
+        IERC20(inputToken).safeApprove(address(iRouteProcessor), amountIn);
         bytes memory decodedRoute = abi.decode(encodedRoute, (bytes));
-        ROUTE_PROCESSOR.processRoute(inputToken, amountIn, outputToken, 0, EXTERNAL_EOA, decodedRoute);
+        iRouteProcessor.processRoute(inputToken, amountIn, outputToken, 0, EXTERNAL_EOA, decodedRoute);
         vm.stopPrank();
     }
 

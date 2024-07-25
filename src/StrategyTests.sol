@@ -36,7 +36,7 @@ contract StrategyTests is OrderBookStrategyTest {
             depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new ActionV1[](0));
         }
         {
-            bytes memory bytecode = PARSER.parse2(
+            bytes memory bytecode = iParser.parse2(
                 LibComposeOrders.getComposedOrder(
                     vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
                 )
@@ -106,14 +106,14 @@ contract StrategyTests is OrderBookStrategyTest {
         uint256 sourceIndex
 
     ) internal {
-        bytes memory bytecode = PARSER.parse2(
+        bytes memory bytecode = iParser.parse2(
             LibComposeOrders.getComposedOrder(
                 vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
             )
         );
 
-        (uint256[] memory stack,) = INTERPRETER.eval3(
-            STORE,
+        (uint256[] memory stack,) = iInterpreter.eval3(
+            iStore,
             namespace,
             bytecode,
             SourceIndexV2.wrap(sourceIndex),
@@ -139,7 +139,7 @@ contract StrategyTests is OrderBookStrategyTest {
         for (uint256 j = 0; j < entries.length; j++) { 
             if (
                 entries[j].topics[0] == keccak256("Transfer(address,address,uint256)") && 
-                address(ARB_INSTANCE) == abi.decode(abi.encodePacked(entries[j].topics[1]), (address)) &&
+                address(iArbInstance) == abi.decode(abi.encodePacked(entries[j].topics[1]), (address)) &&
                 address(APPROVED_EOA) == abi.decode(abi.encodePacked(entries[j].topics[2]), (address))
             ) {
                 bounties[bountyCount] = abi.decode(entries[j].data, (uint256));
