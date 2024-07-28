@@ -2,6 +2,8 @@
 pragma solidity =0.8.25;
 
 import "src/abstract/OrderBookStrategyTest.sol";
+import {LibEncodedDispatch} from "rain.interpreter.interface/lib/caller/LibEncodedDispatch.sol";
+import {StateNamespace, LibNamespace, FullyQualifiedNamespace} from "rain.interpreter.interface/lib/ns/LibNamespace.sol"; 
 import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
 import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
 
@@ -11,7 +13,7 @@ contract StrategyTests is OrderBookStrategyTest {
     // indexed by `inputTokenIndex` and `outputTokenIndex`.
     function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy)
         internal
-        returns (OrderV2 memory order)
+        returns (OrderV3 memory order)
     {
         address inputToken;
         address outputToken;
@@ -31,22 +33,22 @@ contract StrategyTests is OrderBookStrategyTest {
             deal(address(outputToken), ORDER_OWNER, 1e30);
         }
         {
-            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount);
+            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new ActionV1[](0));
         }
         {
-            (bytes memory bytecode, uint256[] memory constants) = PARSER.parse(
+            bytes memory bytecode = iParser.parse2(
                 LibComposeOrders.getComposedOrder(
                     vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
                 )
             );
-            order = placeOrder(ORDER_OWNER, bytecode, constants, strategy.inputVaults, strategy.outputVaults);
+            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, new ActionV1[](0));
         }
     }
 
     // Function to assert OrderBook calculations context by calling 'takeOrders' function
     // directly from the OrderBook contract.
     function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
-        OrderV2 memory order = addOrderDepositOutputTokens(strategy);
+        OrderV3 memory order = addOrderDepositOutputTokens(strategy);
         {
             vm.recordLogs();
 
@@ -64,7 +66,7 @@ contract StrategyTests is OrderBookStrategyTest {
     // Function to assert OrderBook calculations context by calling 'arb' function
     // from the OrderBookV3ArbOrderTaker contract.
     function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
-        OrderV2 memory order = addOrderDepositOutputTokens(strategy);
+        OrderV3 memory order = addOrderDepositOutputTokens(strategy);
 
         // Move external pool price in opposite direction that of the order
         {
@@ -88,4 +90,55 @@ contract StrategyTests is OrderBookStrategyTest {
             assertEq(strategyAmount, strategy.expectedAmount);
         }
     }
+
+    function evalExpression(
+        LibStrategyDeployment.StrategyDeployment memory strategy,
+        FullyQualifiedNamespace namespace,
+        uint256[][] memory context,
+        uint256[] memory inputs,
+        uint256 sourceIndex
+
+    ) internal {
+        bytes memory bytecode = iParser.parse2(
+            LibComposeOrders.getComposedOrder(
+                vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
+            )
+        );
+
+        (uint256[] memory stack,) = iInterpreter.eval3(
+            iStore,
+            namespace,
+            bytecode,
+            SourceIndexV2.wrap(sourceIndex),
+            context,
+            inputs
+        );
+
+        for(uint256  i = 0 ; i < stack.length; i++){
+            console2.log("stack[%s] : %s",i, stack[i]);
+        }
+    }
+
+    function getBounty(Vm.Log[] memory entries)
+        public
+        view
+        returns (uint256 inputTokenBounty, uint256 outputTokenBounty)
+    {   
+        // Array of length 2 to store the input and ouput token bounties.
+        uint256[] memory bounties = new uint256[](2);
+
+        // Count the number of bounties found.
+        uint256 bountyCount = 0;
+        for (uint256 j = 0; j < entries.length; j++) { 
+            if (
+                entries[j].topics[0] == keccak256("Transfer(address,address,uint256)") && 
+                address(iArbInstance) == abi.decode(abi.encodePacked(entries[j].topics[1]), (address)) &&
+                address(APPROVED_EOA) == abi.decode(abi.encodePacked(entries[j].topics[2]), (address))
+            ) {
+                bounties[bountyCount] = abi.decode(entries[j].data, (uint256));
+                bountyCount++;
+            }   
+        }
+        return (bounties[0], bounties[1]);
+    } 
 }

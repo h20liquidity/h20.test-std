@@ -7,11 +7,17 @@ import "src/lib/LibProcessStream.sol";
 
 contract ProcessRouteTest is Test {
 
-    function testProcessUniv3Route() public {
-        bytes memory uniV3Stream =
-            hex"02e20b9e246db5a0d21bf9209e4858bc9a3ff7a03401ffff00bd80923830b1b122dce0c446b704621458329f1d0009bd2a33c47746ff03b86bce4e885d03c74a8e8c0182af49447d8a07e3bd95bd0d56f35241523fbab101ffff01c31e54c7a869b9fcbecc14363cf510d1c41fa44301fc72038796bd1578c1f578487802ac15bd710ed2";
+    uint256 constant BASE_FORK_BLOCK_NUMBER = 17300025;
+    uint256 constant ETH_FORK_BLOCK_NUMBER = 20341342;
 
-        LibProcessStream.ProcessedRoute memory processedRoute = LibProcessStream.processRoute(uniV3Stream);
+    function testProcessUniv3Route() public {
+        
+        vm.createSelectFork(vm.envString("RPC_URL_BASE"), BASE_FORK_BLOCK_NUMBER);
+
+        bytes memory uniV3Stream =
+            hex"0299b2B1A2aDB02B38222ADcD057783D7e5D1FCC7D01ffff011536EE1506e24e5A36Be99C73136cD82907A902E000389879e0156033202C44BF784ac18fC02edeE4f01833589fCD6eDb6E08f4c7C32D4f71b54bdA0291301ffff01C18F50d6A832f12F6DcAaeEe8D0c87A65B96787E00F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88";
+
+        LibProcessStream.RouteProcessor4ProccessedRoute memory processedRoute = LibProcessStream.processRoute(uniV3Stream);
 
         // Assert Processed Routes
         assertEq(processedRoute.processedMyERC20.length, 1);
@@ -19,24 +25,27 @@ contract ProcessRouteTest is Test {
         assertEq(processedRoute.processedNative.length, 0);
         assertEq(processedRoute.processedOnePool.length, 0);
 
-        // Assert Processed Route Data
-        assertEq(processedRoute.processedMyERC20[0].tokenIn, address(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1));
-        assertEq(processedRoute.processedMyERC20[0].pool, address(0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443));
-        assertEq(processedRoute.processedMyERC20[0].to, address(0xfc72038796Bd1578C1f578487802Ac15bd710Ed2));
-        assertEq(processedRoute.processedMyERC20[0].direction, 1);
+        // Assert Processed Route Data 
+        assertEq(processedRoute.processedUserERC20[0].tokenIn, address(0x99b2B1A2aDB02B38222ADcD057783D7e5D1FCC7D));
+        assertEq(processedRoute.processedUserERC20[0].tokenOut, address(0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913));
+        assertEq(processedRoute.processedUserERC20[0].pool, address(0x1536EE1506e24e5A36Be99C73136cD82907A902E));
+        assertEq(processedRoute.processedUserERC20[0].to, address(0x0389879e0156033202C44BF784ac18fC02edeE4f));
 
         // Assert Processed Route Data
-        assertEq(processedRoute.processedUserERC20[0].tokenIn, address(0xe20B9e246db5a0d21BF9209E4858Bc9A3ff7A034));
-        assertEq(processedRoute.processedUserERC20[0].pool, address(0xBD80923830B1B122dcE0C446b704621458329F1D));
-        assertEq(processedRoute.processedUserERC20[0].to, address(0x09bD2A33c47746fF03b86BCe4E885D03C74a8E8C));
-        assertEq(processedRoute.processedUserERC20[0].direction, 0);
+        assertEq(processedRoute.processedMyERC20[0].tokenIn, address(0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913));
+        assertEq(processedRoute.processedMyERC20[0].tokenOut, address(0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb));
+        assertEq(processedRoute.processedMyERC20[0].pool, address(0xC18F50d6A832f12F6DcAaeEe8D0c87A65B96787E));
+        assertEq(processedRoute.processedMyERC20[0].to, address(0xF97A86C2Cb3e42f89AC5f5AA020E5c3505015a88));
     }
 
     function testProcessUniv2Route() public {
-        bytes memory uniV2Stream =
-            hex"02e9e7CEA3DedcA5984780Bafc599bD69ADd087D5601ffff004A2Dbaa979A3F4Cfb8004eA5743fAF159DD2665A00669845c29D9B1A64FFF66a55aA13EB4adB889a889a8545FA798A7be7F8E1B8DaDD79c9206357C015";
 
-        LibProcessStream.ProcessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
+        vm.createSelectFork(vm.envString("RPC_URL_BASE"), BASE_FORK_BLOCK_NUMBER);
+
+        bytes memory uniV2Stream =
+            hex"02222789334D44bB5b2364939477E15A6c981Ca16501ffff00822abC8C238cFe43344C5db8629ed7e626fda08c01F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88000bb8";
+
+        LibProcessStream.RouteProcessor4ProccessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
 
         // Assert Processed Routes
         assertEq(processedRoute.processedMyERC20.length, 0);
@@ -45,38 +54,44 @@ contract ProcessRouteTest is Test {
         assertEq(processedRoute.processedOnePool.length, 0);
 
         // Assert Processed Route Data
-        assertEq(processedRoute.processedUserERC20[0].tokenIn, address(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56));
-        assertEq(processedRoute.processedUserERC20[0].pool, address(0x4A2Dbaa979A3F4Cfb8004eA5743fAF159DD2665A));
-        assertEq(processedRoute.processedUserERC20[0].to, address(0x669845c29D9B1A64FFF66a55aA13EB4adB889a88));
-        assertEq(processedRoute.processedUserERC20[0].direction, 0);
+        assertEq(processedRoute.processedUserERC20[0].tokenIn, address(0x222789334D44bB5b2364939477E15A6c981Ca165));
+        assertEq(processedRoute.processedUserERC20[0].tokenOut, address(0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe));
+        assertEq(processedRoute.processedUserERC20[0].pool, address(0x822abC8C238cFe43344C5db8629ed7e626fda08c));
+        assertEq(processedRoute.processedUserERC20[0].to, address(0xF97A86C2Cb3e42f89AC5f5AA020E5c3505015a88));
     }
 
-    function testProcessNativeRoute() public {
+    function testProcessCurveRoute() public {
 
-        bytes memory nativeRouteStream = hex"02c2132D05D31c914a87C6611C10748AEb04B58e8F01ffff019B08288C3Be4F62bbf8d1C20Ac9C5e6f9467d8B700316Bc12871c807020EF8c1Bc7771061C4e7a04ed040d500B1d8E8eF31E21C99d1Db9A6444d3ADf127000316Bc12871c807020EF8c1Bc7771061C4e7a04ed01669845c29D9B1A64FFF66a55aA13EB4adB889a88";
+        vm.createSelectFork(vm.envString("RPC_URL_ETH"), ETH_FORK_BLOCK_NUMBER); 
 
-        LibProcessStream.ProcessedRoute memory processedRoute = LibProcessStream.processRoute(nativeRouteStream);
+        bytes memory uniV2Stream =
+            hex"026B175474E89094C44Da98b954EedeAC495271d0F02155505bebc44782c7db0a1a60cb6fe97d0b483032ff1c7010001e43ca1Dee3F0fc1e2df73A0745674545F11A59F5A0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48ffff05a5407eae9ba41422680e2e00537571bcc53efbfd010002F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88dAC17F958D2ee523a2206206994597C13D831ec701A0b86991c6218b36c1d19D4a2e9Eb0cE3606eB4801ffff05a5407eae9ba41422680e2e00537571bcc53efbfd010102F97A86C2Cb3e42f89AC5f5AA020E5c3505015a88dAC17F958D2ee523a2206206994597C13D831ec7";
+
+        LibProcessStream.RouteProcessor4ProccessedRoute memory processedRoute = LibProcessStream.processRoute(uniV2Stream);
 
         // Assert Processed Routes
-        assertEq(processedRoute.processedMyERC20.length, 0);
-        assertEq(processedRoute.processedUserERC20.length, 1);
+        assertEq(processedRoute.processedMyERC20.length, 1);
+        assertEq(processedRoute.processedUserERC20.length, 2);
         assertEq(processedRoute.processedNative.length, 0);
-        assertEq(processedRoute.processedOnePool.length, 1);
+        assertEq(processedRoute.processedOnePool.length, 0);
 
         // Assert Processed Route Data
-        assertEq(processedRoute.processedUserERC20[0].tokenIn, address(0xc2132D05D31c914a87C6611C10748AEb04B58e8F));
-        assertEq(processedRoute.processedUserERC20[0].pool, address(0x9B08288C3Be4F62bbf8d1C20Ac9C5e6f9467d8B7));
-        assertEq(processedRoute.processedUserERC20[0].to, address(0x316Bc12871c807020EF8c1Bc7771061C4e7a04ed));
-        assertEq(processedRoute.processedUserERC20[0].direction, 0);
+        assertEq(processedRoute.processedUserERC20[0].tokenIn, address(0x6B175474E89094C44Da98b954EedeAC495271d0F));
+        assertEq(processedRoute.processedUserERC20[0].tokenOut, address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48));
+        assertEq(processedRoute.processedUserERC20[0].pool, address(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7));
+        assertEq(processedRoute.processedUserERC20[0].to, address(0xe43ca1Dee3F0fc1e2df73A0745674545F11A59F5));
 
         // Assert Processed Route Data
-        assertEq(processedRoute.processedOnePool[0].tokenIn, address(0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270));
-        assertEq(processedRoute.processedOnePool[0].pool, address(0x316Bc12871c807020EF8c1Bc7771061C4e7a04ed));
-        assertEq(processedRoute.processedOnePool[0].to, address(0x669845c29D9B1A64FFF66a55aA13EB4adB889a88));
-        assertEq(processedRoute.processedOnePool[0].direction, 1);
+        assertEq(processedRoute.processedUserERC20[1].tokenIn, address(0x6B175474E89094C44Da98b954EedeAC495271d0F));
+        assertEq(processedRoute.processedUserERC20[1].tokenOut, address(0xdAC17F958D2ee523a2206206994597C13D831ec7));
+        assertEq(processedRoute.processedUserERC20[1].pool, address(0xA5407eAE9Ba41422680e2e00537571bcC53efBfD));
+        assertEq(processedRoute.processedUserERC20[1].to, address(0xF97A86C2Cb3e42f89AC5f5AA020E5c3505015a88));
 
-
-
+        // Assert Processed Route Data
+        assertEq(processedRoute.processedMyERC20[0].tokenIn, address(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48));
+        assertEq(processedRoute.processedMyERC20[0].tokenOut, address(0xdAC17F958D2ee523a2206206994597C13D831ec7));
+        assertEq(processedRoute.processedMyERC20[0].pool, address(0xA5407eAE9Ba41422680e2e00537571bcC53efBfD));
+        assertEq(processedRoute.processedMyERC20[0].to, address(0xF97A86C2Cb3e42f89AC5f5AA020E5c3505015a88));
     }
 
 }
