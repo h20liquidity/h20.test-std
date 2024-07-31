@@ -53,7 +53,7 @@ contract StrategyTests is OrderBookStrategyTest {
             vm.recordLogs();
 
             // `takeOrders()` called
-            takeExternalOrder(order, strategy.inputTokenIndex, strategy.outputTokenIndex);
+            takeExternalOrder(order, strategy.inputTokenIndex, strategy.outputTokenIndex, new SignedContextV1[](0));
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
             (uint256 strategyAmount, uint256 strategyRatio) = getCalculationContext(entries);
@@ -81,7 +81,7 @@ contract StrategyTests is OrderBookStrategyTest {
             vm.recordLogs();
 
             // `arb()` called
-            takeArbOrder(order, strategy.takerRoute, strategy.inputTokenIndex, strategy.outputTokenIndex);
+            takeArbOrder(order, strategy.takerRoute, strategy.inputTokenIndex, strategy.outputTokenIndex, new SignedContextV1[](0));
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
             (uint256 strategyAmount, uint256 strategyRatio) = getCalculationContext(entries);
