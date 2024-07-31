@@ -27,6 +27,7 @@ import {IOrderBookV4ArbOrderTaker} from "rain.orderbook.interface/interface/unst
 import {SafeERC20, IERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IRouteProcessor} from "src/interface/IRouteProcessor.sol";
+import {ECDSA} from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
 abstract contract OrderBookStrategyTest is Test {
     using SafeERC20 for IERC20;
@@ -83,7 +84,13 @@ abstract contract OrderBookStrategyTest is Test {
         assertEq(stateChanged, true);
     }
 
-    function takeArbOrder(OrderV3 memory order, bytes memory route, uint256 inputIOIndex, uint256 outputIOIndex)
+    function takeArbOrder(
+        OrderV3 memory order,
+        bytes memory route,
+        uint256 inputIOIndex,
+        uint256 outputIOIndex,
+        SignedContextV1[] memory signedContext
+    )
         internal
     {
         vm.startPrank(APPROVED_EOA);
@@ -94,7 +101,7 @@ abstract contract OrderBookStrategyTest is Test {
             ""
         );
         TakeOrderConfigV3[] memory innerConfigs = new TakeOrderConfigV3[](1); 
-        innerConfigs[0] = TakeOrderConfigV3(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0)); 
+        innerConfigs[0] = TakeOrderConfigV3(order, inputIOIndex, outputIOIndex, signedContext); 
 
         TakeOrdersConfigV3 memory takeOrdersConfig =
             TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, route);
@@ -102,7 +109,12 @@ abstract contract OrderBookStrategyTest is Test {
         vm.stopPrank();
     }
 
-    function takeExternalOrder(OrderV3 memory order, uint256 inputIOIndex, uint256 outputIOIndex) internal {
+    function takeExternalOrder(
+        OrderV3 memory order,
+        uint256 inputIOIndex,
+        uint256 outputIOIndex,
+        SignedContextV1[] memory signedContext
+    ) internal {
         vm.startPrank(APPROVED_EOA);
 
         address inputTokenAddress = order.validInputs[inputIOIndex].token;
@@ -110,12 +122,30 @@ abstract contract OrderBookStrategyTest is Test {
 
         TakeOrderConfigV3[] memory innerConfigs = new TakeOrderConfigV3[](1);
 
-        innerConfigs[0] = TakeOrderConfigV3(order, inputIOIndex, outputIOIndex, new SignedContextV1[](0));
+        innerConfigs[0] = TakeOrderConfigV3(order, inputIOIndex, outputIOIndex, signedContext);
         TakeOrdersConfigV3 memory takeOrdersConfig =
             TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, "");
 
         iOrderBook.takeOrders2(takeOrdersConfig);
         vm.stopPrank();
+    }
+
+    function signContext(uint256 privateKey, uint256[] memory context) public pure returns (SignedContextV1 memory) {
+        SignedContextV1 memory signedContext;
+
+        // Store the signer's address in the struct
+        signedContext.signer = vm.addr(privateKey);
+        signedContext.context = context; // copy the context data into the struct
+
+        // Create a digest of the context data
+        bytes32 contextHash = keccak256(abi.encodePacked(context));
+        bytes32 digest = ECDSA.toEthSignedMessageHash(contextHash);
+
+        // Create the signature using the cheatcode 'sign'
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
+        signedContext.signature = abi.encodePacked(r, s, v);
+
+        return signedContext;
     }
 
     function moveExternalPrice(address inputToken, address outputToken, uint256 amountIn, bytes memory encodedRoute)
