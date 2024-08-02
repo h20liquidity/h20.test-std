@@ -11,7 +11,7 @@ contract StrategyTests is OrderBookStrategyTest {
     // Function to add OrderBook order and deposit tokens.
     // Input and Output tokens are extracted from `inputVaults` and `outputVaults`,
     // indexed by `inputTokenIndex` and `outputTokenIndex`.
-    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeployment memory strategy)
+    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeploymentV3 memory strategy)
         internal
         returns (OrderV3 memory order)
     {
@@ -41,13 +41,13 @@ contract StrategyTests is OrderBookStrategyTest {
                     vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
                 )
             );
-            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, new ActionV1[](0));
+            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, strategy.postActions);
         }
     }
 
     // Function to assert OrderBook calculations context by calling 'takeOrders' function
     // directly from the OrderBook contract.
-    function checkStrategyCalculations(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
+    function checkStrategyCalculations(LibStrategyDeployment.StrategyDeploymentV3 memory strategy) internal {
         OrderV3 memory order = addOrderDepositOutputTokens(strategy);
         {
             vm.recordLogs();
@@ -65,7 +65,7 @@ contract StrategyTests is OrderBookStrategyTest {
 
     // Function to assert OrderBook calculations context by calling 'arb' function
     // from the OrderBookV3ArbOrderTaker contract.
-    function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeployment memory strategy) internal {
+    function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeploymentV3 memory strategy) internal {
         OrderV3 memory order = addOrderDepositOutputTokens(strategy);
 
         // Move external pool price in opposite direction that of the order
@@ -92,7 +92,7 @@ contract StrategyTests is OrderBookStrategyTest {
     }
 
     function evalExpression(
-        LibStrategyDeployment.StrategyDeployment memory strategy,
+        LibStrategyDeployment.StrategyDeploymentV3 memory strategy,
         FullyQualifiedNamespace namespace,
         uint256[][] memory context,
         uint256[] memory inputs,
