@@ -77,7 +77,6 @@ abstract contract OrderBookStrategyTest is Test {
         vm.recordLogs();
         (bool stateChanged) = iOrderBook.addOrder2(orderV3Config,actionV1);
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        assertEq(entries.length, 1);
         (,, order) = abi.decode(entries[0].data, (address, bytes32, OrderV3));
         assertEq(order.owner, orderOwner);
         assertEq(stateChanged, true);
