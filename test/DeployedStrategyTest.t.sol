@@ -60,7 +60,7 @@ contract DeployedStrategyTest is StrategyTests {
         uint256 expectedAmountOutputMax = 1e18;
 
         // Init params for the strategy
-        LibStrategyDeployment.StrategyDeployment memory strategy = LibStrategyDeployment.StrategyDeployment(
+        LibStrategyDeployment.StrategyDeploymentV3 memory strategy = LibStrategyDeployment.StrategyDeploymentV3(
             "",
             "",
             0,
@@ -74,7 +74,8 @@ contract DeployedStrategyTest is StrategyTests {
             "./lib/rain.orderbook",
             "./lib/rain.orderbook/Cargo.toml",
             inputVaults,
-            outputVaults
+            outputVaults,
+            new ActionV1[](0)
         );
 
         // Assert strategy calculations by executing order by directly calling 'takeOrder' function
@@ -99,7 +100,7 @@ contract DeployedStrategyTest is StrategyTests {
         uint256 expectedAmountOutputMax = 1e18;
 
         // Init params for the strategy
-        LibStrategyDeployment.StrategyDeployment memory strategy = LibStrategyDeployment.StrategyDeployment(
+        LibStrategyDeployment.StrategyDeploymentV3 memory strategy = LibStrategyDeployment.StrategyDeploymentV3(
             getEncodedBlueToRedRoute(),
             getEncodedRedToBlueRoute(),
             0,
@@ -113,7 +114,8 @@ contract DeployedStrategyTest is StrategyTests {
             "./lib/rain.orderbook",
             "./lib/rain.orderbook/Cargo.toml",
             inputVaults,
-            outputVaults
+            outputVaults,
+            new ActionV1[](0)
         );
 
         // Assert strategy calculations by executing order by calling 'arb' function

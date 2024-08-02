@@ -3,9 +3,10 @@ pragma solidity =0.8.25;
 
 import {Vm} from "forge-std/Vm.sol";
 import {IO} from "rain.orderbook.interface/interface/IOrderBookV3.sol";
+import {ActionV1} from "rain.orderbook.interface/interface/unstable/IOrderBookV4.sol";
 
 library LibStrategyDeployment {
-    struct StrategyDeployment {
+    struct StrategyDeploymentV3 {
         bytes makerRoute;
         bytes takerRoute;
         uint256 inputTokenIndex;
@@ -20,5 +21,6 @@ library LibStrategyDeployment {
         string manifestPath;
         IO[] inputVaults;
         IO[] outputVaults;
+        ActionV1[] postActions;
     }
 }
