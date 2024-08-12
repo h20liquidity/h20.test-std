@@ -24,7 +24,3 @@ ffi = true
 
 [fuzz]
 runs = 1024
-
-remappings = [
-    "rain.math.fixedpoint/=lib/rain.orderbook/lib/rain.interpreter/lib/rain.math.fixedpoint/src/",
-]
