@@ -2,7 +2,7 @@
 pragma solidity =0.8.25;
 
 import "src/abstract/OrderBookStrategyTest.sol";
-import {LibEncodedDispatch} from "rain.interpreter.interface/lib/caller/LibEncodedDispatch.sol";
+import {LibEncodedDispatch} from "rain.interpreter.interface/lib/deprecated/caller/LibEncodedDispatch.sol";
 import {StateNamespace, LibNamespace, FullyQualifiedNamespace} from "rain.interpreter.interface/lib/ns/LibNamespace.sol"; 
 import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
 import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";

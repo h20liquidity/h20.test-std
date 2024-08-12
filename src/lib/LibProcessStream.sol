@@ -56,7 +56,7 @@ library LibProcessStream {
     }
 
     /// Log the processed route data.
-    function logRoute(RouteProcessor4Route[] memory routeData) internal pure {
+    function logRoute(RouteProcessor4Route[] memory routeData) internal view {
         if(routeData.length > 0){
             for(uint256 i = 0 ; i < routeData.length; i++){
                 console2.log("----------------------Processed Route----------------------");

@@ -2,8 +2,8 @@
 pragma solidity =0.8.25;
 
 import {Vm} from "forge-std/Vm.sol";
-import {IO} from "rain.orderbook.interface/interface/IOrderBookV3.sol";
-import {ActionV1} from "rain.orderbook.interface/interface/unstable/IOrderBookV4.sol";
+import {IO} from "rain.orderbook.interface/interface/deprecated/v3/IOrderBookV3.sol";
+import {ActionV1} from "rain.orderbook.interface/interface/IOrderBookV4.sol";
 
 library LibStrategyDeployment {
     struct StrategyDeploymentV3 {

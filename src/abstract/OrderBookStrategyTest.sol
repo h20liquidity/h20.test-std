@@ -3,17 +3,16 @@ pragma solidity =0.8.25;
 
 import {Vm} from "forge-std/Vm.sol";
 import {Test, console2, stdError} from "forge-std/Test.sol";
-import {IParserV1} from "rain.interpreter.interface/interface/IParserV1.sol";
-import {IParserV2} from "rain.interpreter.interface/interface/unstable/IParserV2.sol";
-import {IExpressionDeployerV3} from "rain.interpreter.interface/interface/IExpressionDeployerV3.sol";
-import {IInterpreterV3} from "rain.interpreter.interface/interface/unstable/IInterpreterV3.sol";
+import {IParserV2} from "rain.interpreter.interface/interface/IParserV2.sol";
+import {IExpressionDeployerV3} from "rain.interpreter.interface/interface/deprecated/IExpressionDeployerV3.sol";
+import {IInterpreterV3} from "rain.interpreter.interface/interface/IInterpreterV3.sol";
 import {IInterpreterStoreV2} from "rain.interpreter.interface/interface/IInterpreterStoreV2.sol";
-import {SourceIndexV2} from "rain.interpreter.interface/interface/IInterpreterV2.sol";
-import {EvaluableConfigV3, SignedContextV1} from "rain.interpreter.interface/interface/IInterpreterCallerV2.sol";
+import {SourceIndexV2} from "rain.interpreter.interface/interface/deprecated/IInterpreterV2.sol";
+import {EvaluableConfigV3, SignedContextV1} from "rain.interpreter.interface/interface/deprecated/IInterpreterCallerV2.sol";
 import {
     IOrderBookV3,
     IO
-} from "rain.orderbook.interface/interface/IOrderBookV3.sol";
+} from "rain.orderbook.interface/interface/deprecated/v3/IOrderBookV3.sol";
 import {
     IOrderBookV4,
     OrderV3,
@@ -22,8 +21,8 @@ import {
     TakeOrdersConfigV3,
     ActionV1,
     EvaluableV3
-}from "rain.orderbook.interface/interface/unstable/IOrderBookV4.sol";
-import {IOrderBookV4ArbOrderTaker} from "rain.orderbook.interface/interface/unstable/IOrderBookV4ArbOrderTaker.sol";
+}from "rain.orderbook.interface/interface/IOrderBookV4.sol";
+import {IOrderBookV4ArbOrderTaker} from "rain.orderbook.interface/interface/IOrderBookV4ArbOrderTaker.sol";
 import {SafeERC20, IERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IRouteProcessor} from "src/interface/IRouteProcessor.sol";
