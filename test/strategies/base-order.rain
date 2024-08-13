@@ -6,11 +6,11 @@ networks:
     currency: ETH
 
 subgraphs:
-  base-test: https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/ob4-base/0.1/gn
+  base-test: https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/ob4-base/0.3/gn
   
 orderbooks:
   base-test:
-    address: 0xA2f56F8F74B7d04d61f281BE6576b6155581dcBA
+    address: 0x7A44459893F99b9d9a92d488eb5d16E4090f0545
     network: base-test
     subgraph: base-test
 
@@ -44,8 +44,10 @@ scenarios:
         orderbook: base-test
         runs: 100
         bindings:
-          max-output: 1
-          io-ratio: 0.00000001
+          # Ask for now, registry in future.
+          orderbook-subparser: 0x762adD85a30A83722feF2e029087C9D110B6a7b3
+          max-output: 0.0000000000000001
+          io-ratio: 0.001
 
 charts:
   base-simulation:
@@ -64,10 +66,22 @@ deployments:
     order: base-order
 
 ---
+#orderbook-subparser !The subparser for the Orderbook words
 #max-output !OrderBook max output
 #io-ratio !OrderBook order ratio
+
+#amount-key "amount-key"
+#ratio-key "ratio-key"
+
 #calculate-io
-  _ _: max-output io-ratio;
+  using-words-from orderbook-subparser
+  _: get(hash(order-hash() amount-key)),
+  _: get(hash(order-hash() ratio-key));
 
 #handle-io
-  :;
+ :;
+
+#post-add-order
+ using-words-from orderbook-subparser
+ :set(hash(order-hash() amount-key) max-output),
+ :set(hash(order-hash() ratio-key) io-ratio);

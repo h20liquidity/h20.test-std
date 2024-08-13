@@ -3,6 +3,7 @@ pragma solidity =0.8.25;
 
 import "src/abstract/OrderBookStrategyTest.sol";
 import {LibEncodedDispatch} from "rain.interpreter.interface/lib/deprecated/caller/LibEncodedDispatch.sol";
+import {ActionV1} from "rain.orderbook.interface/interface/IOrderBookV4.sol";
 import {StateNamespace, LibNamespace, FullyQualifiedNamespace} from "rain.interpreter.interface/lib/ns/LibNamespace.sol"; 
 import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
 import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
@@ -11,7 +12,7 @@ contract StrategyTests is OrderBookStrategyTest {
     // Function to add OrderBook order and deposit tokens.
     // Input and Output tokens are extracted from `inputVaults` and `outputVaults`,
     // indexed by `inputTokenIndex` and `outputTokenIndex`.
-    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeploymentV3 memory strategy)
+    function addOrderDepositOutputTokens(LibStrategyDeployment.StrategyDeploymentV4 memory strategy)
         internal
         returns (OrderV3 memory order)
     {
@@ -35,19 +36,31 @@ contract StrategyTests is OrderBookStrategyTest {
         {
             depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new ActionV1[](0));
         }
-        {
+        {   
+            ActionV1[] memory postAddOrderTasks;
+            {
+                bytes memory postOrderCompose = iParser.parse2(
+                    LibComposeOrders.getComposedPostAddOrder(
+                        vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
+                    )
+                );
+                EvaluableV3 memory postOrderEvaluable = EvaluableV3(iInterpreter, iStore, postOrderCompose);
+                ActionV1 memory postOrderAction = ActionV1(postOrderEvaluable,strategy.postAddOrderTaskSignedContext);
+                postAddOrderTasks = new ActionV1[](1);
+                postAddOrderTasks[0] = postOrderAction;
+            }
             bytes memory bytecode = iParser.parse2(
                 LibComposeOrders.getComposedOrder(
                     vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
                 )
             );
-            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, strategy.postActions);
+            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, postAddOrderTasks);
         }
     }
 
     // Function to assert OrderBook calculations context by calling 'takeOrders' function
     // directly from the OrderBook contract.
-    function checkStrategyCalculations(LibStrategyDeployment.StrategyDeploymentV3 memory strategy) internal {
+    function checkStrategyCalculations(LibStrategyDeployment.StrategyDeploymentV4 memory strategy) internal {
         OrderV3 memory order = addOrderDepositOutputTokens(strategy);
         {
             vm.recordLogs();
@@ -65,7 +78,7 @@ contract StrategyTests is OrderBookStrategyTest {
 
     // Function to assert OrderBook calculations context by calling 'arb' function
     // from the OrderBookV3ArbOrderTaker contract.
-    function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeploymentV3 memory strategy) internal {
+    function checkStrategyCalculationsArbOrder(LibStrategyDeployment.StrategyDeploymentV4 memory strategy) internal {
         OrderV3 memory order = addOrderDepositOutputTokens(strategy);
 
         // Move external pool price in opposite direction that of the order
@@ -92,7 +105,7 @@ contract StrategyTests is OrderBookStrategyTest {
     }
 
     function evalExpression(
-        LibStrategyDeployment.StrategyDeploymentV3 memory strategy,
+        LibStrategyDeployment.StrategyDeploymentV4 memory strategy,
         FullyQualifiedNamespace namespace,
         uint256[][] memory context,
         uint256[] memory inputs,

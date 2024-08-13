@@ -7,7 +7,7 @@ import "src/lib/LibProcessStream.sol";
 
 contract ProcessRouteTest is Test {
 
-    uint256 constant BASE_FORK_BLOCK_NUMBER = 17300025;
+    uint256 constant BASE_FORK_BLOCK_NUMBER = 18371042;
     uint256 constant ETH_FORK_BLOCK_NUMBER = 20341342;
 
     function testProcessUniv3Route() public {
