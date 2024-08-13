@@ -5,17 +5,10 @@ libs = ["lib"]
 
 solc = "0.8.25"
 
-# Try to make sure the optimizer doesn't touch the output in a way that can break
-# source maps for debugging.
-# via_ir = false
-# optimizer = false
-# optimizer_runs = 0
-# optimizer_steps = 0
-
 # These settings should be used for snapshots
 optimizer = true
 optimizer_runs = 1000000
-
+evm_version = "cancun"
 bytecode_hash = "none"
 cbor_metadata = false
 
@@ -24,7 +17,3 @@ ffi = true
 
 [fuzz]
 runs = 1024
-
-remappings = [
-    "rain.math.fixedpoint/=lib/rain.orderbook/lib/rain.interpreter/lib/rain.math.fixedpoint/src/",
-]
