@@ -127,7 +127,7 @@ contract DeployedStrategyTest is StrategyTests {
             vm.recordLogs();
 
             // `arb()` called
-            takeArbOrder(order, strategy.takerRoute, strategy.inputTokenIndex, strategy.outputTokenIndex);
+            takeArbOrder(order, strategy.takerRoute, strategy.inputTokenIndex, strategy.outputTokenIndex, new SignedContextV1[](0));
 
             Vm.Log[] memory entries = vm.getRecordedLogs();
             (uint256 strategyAmount, uint256 strategyRatio) = getCalculationContext(entries);
