@@ -3,7 +3,7 @@ pragma solidity =0.8.25;
 
 import "src/abstract/OrderBookStrategyTest.sol";
 import {LibEncodedDispatch} from "rain.interpreter.interface/lib/deprecated/caller/LibEncodedDispatch.sol";
-import {ActionV1} from "rain.orderbook.interface/interface/IOrderBookV4.sol";
+import {TaskV1} from "rain.orderbook.interface/interface/IOrderBookV4.sol";
 import {StateNamespace, LibNamespace, FullyQualifiedNamespace} from "rain.interpreter.interface/lib/ns/LibNamespace.sol"; 
 import {LibStrategyDeployment} from "src/lib/LibStrategyDeployment.sol";
 import {LibComposeOrders} from "src/lib/LibComposeOrder.sol";
@@ -34,10 +34,10 @@ contract StrategyTests is OrderBookStrategyTest {
             deal(address(outputToken), ORDER_OWNER, 1e30);
         }
         {
-            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new ActionV1[](0));
+            depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new TaskV1[](0));
         }
         {   
-            ActionV1[] memory postAddOrderTasks;
+            TaskV1[] memory postAddOrderTasks;
             {
                 bytes memory postOrderCompose = iParser.parse2(
                     LibComposeOrders.getComposedPostAddOrder(
@@ -45,8 +45,8 @@ contract StrategyTests is OrderBookStrategyTest {
                     )
                 );
                 EvaluableV3 memory postOrderEvaluable = EvaluableV3(iInterpreter, iStore, postOrderCompose);
-                ActionV1 memory postOrderAction = ActionV1(postOrderEvaluable,strategy.postAddOrderTaskSignedContext);
-                postAddOrderTasks = new ActionV1[](1);
+                TaskV1 memory postOrderAction = TaskV1(postOrderEvaluable,strategy.postAddOrderTaskSignedContext);
+                postAddOrderTasks = new TaskV1[](1);
                 postAddOrderTasks[0] = postOrderAction;
             }
             bytes memory bytecode = iParser.parse2(

@@ -19,10 +19,10 @@ import {
     OrderConfigV3,
     TakeOrderConfigV3,
     TakeOrdersConfigV3,
-    ActionV1,
+    TaskV1,
     EvaluableV3
 }from "rain.orderbook.interface/interface/IOrderBookV4.sol";
-import {IOrderBookV4ArbOrderTaker} from "rain.orderbook.interface/interface/IOrderBookV4ArbOrderTaker.sol";
+import {IOrderBookV4ArbOrderTakerV2} from "rain.orderbook.interface/interface/unstable/IOrderBookV4ArbOrderTakerV2.sol";
 import {SafeERC20, IERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IRouteProcessor} from "src/interface/IRouteProcessor.sol";
@@ -42,17 +42,17 @@ abstract contract OrderBookStrategyTest is Test {
     IInterpreterV3 public iInterpreter;
     IInterpreterStoreV2 public iStore;
     IOrderBookV4 public iOrderBook;
-    IOrderBookV4ArbOrderTaker public iArbInstance;
+    IOrderBookV4ArbOrderTakerV2 public iArbInstance;
     IRouteProcessor public iRouteProcessor; 
 
-    function depositTokens(address owner, address token, uint256 vaultId, uint256 amount, ActionV1[] memory actionV1) internal {
+    function depositTokens(address owner, address token, uint256 vaultId, uint256 amount, TaskV1[] memory actionV1) internal {
         vm.startPrank(owner);
         IERC20(token).safeApprove(address(iOrderBook), amount);
         iOrderBook.deposit2(address(token), vaultId, amount, actionV1);
         vm.stopPrank();
     }
 
-    function withdrawTokens(address owner, address token, uint256 vaultId, uint256 amount, ActionV1[] memory actionV1) internal {
+    function withdrawTokens(address owner, address token, uint256 vaultId, uint256 amount, TaskV1[] memory actionV1) internal {
         vm.startPrank(owner);
         iOrderBook.withdraw2(address(token), vaultId, amount, actionV1);
         vm.stopPrank();
@@ -67,7 +67,7 @@ abstract contract OrderBookStrategyTest is Test {
         bytes memory bytecode,
         IO[] memory inputs,
         IO[] memory outputs,
-        ActionV1[] memory actionV1
+        TaskV1[] memory actionV1
     ) internal returns (OrderV3 memory order) { 
 
         EvaluableV3 memory evaluableConfig = EvaluableV3(iInterpreter, iStore ,bytecode);
@@ -103,7 +103,7 @@ abstract contract OrderBookStrategyTest is Test {
 
         TakeOrdersConfigV3 memory takeOrdersConfig =
             TakeOrdersConfigV3(0, type(uint256).max, type(uint256).max, innerConfigs, route);
-        iArbInstance.arb2(takeOrdersConfig, 0, arbEvaluableV3Config);
+        iArbInstance.arb3(iOrderBook, takeOrdersConfig, TaskV1(arbEvaluableV3Config, new SignedContextV1[](0)));
         vm.stopPrank();
     }
 

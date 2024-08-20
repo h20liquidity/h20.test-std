@@ -11,7 +11,7 @@ import "src/StrategyTests.sol";
 /// to initialize the suite for a particular fork.
 contract DeployedStrategyTest is StrategyTests {
     // Inheriting contract defines the fork block number.
-    uint256 constant FORK_BLOCK_NUMBER = 18371042;
+    uint256 constant FORK_BLOCK_NUMBER = 18690236;
 
     // https://basescan.org/address/0x222789334d44bb5b2364939477e15a6c981ca165
     address constant RED_TOKEN = address(0x222789334D44bB5b2364939477E15A6c981Ca165);
@@ -33,10 +33,12 @@ contract DeployedStrategyTest is StrategyTests {
         iParser = IParserV2(0x56394785a22b3BE25470a0e03eD9E0a939C47b9b);
         iStore = IInterpreterStoreV2(0x6E4b01603edBDa617002A077420E98C86595748E); 
         iInterpreter = IInterpreterV3(0x379b966DC6B117dD47b5Fc5308534256a4Ab1BCC); 
-        iExpressionDeployer = IExpressionDeployerV3(0x56394785a22b3BE25470a0e03eD9E0a939C47b9b); 
-        iOrderBook = IOrderBookV4(0x7A44459893F99b9d9a92d488eb5d16E4090f0545);
-        iArbInstance = IOrderBookV4ArbOrderTaker(0x03B6A05D487e760edb383754dA58C801D860D1d0);
-        iRouteProcessor = IRouteProcessor(address(0x0389879e0156033202C44BF784ac18fC02edeE4f)); 
+        iExpressionDeployer = IExpressionDeployerV3(0x56394785a22b3BE25470a0e03eD9E0a939C47b9b);
+
+        iOrderBook = IOrderBookV4(0x80DE00e3cA96AE0569426A1bb1Ae22CD4181dE6F);
+        iArbInstance = IOrderBookV4ArbOrderTakerV2(0x40D44abeC30288BFcd400200BA65FBD05daA5321);
+        iRouteProcessor = IRouteProcessor(address(0x0389879e0156033202C44BF784ac18fC02edeE4f));
+
         EXTERNAL_EOA = address(0x654FEf5Fb8A1C91ad47Ba192F7AA81dd3C821427);
         APPROVED_EOA = address(0x669845c29D9B1A64FFF66a55aA13EB4adB889a88);
         ORDER_OWNER = address(0x5e01e44aE1969e16B9160d903B6F2aa991a37B21); 
@@ -139,14 +141,14 @@ contract DeployedStrategyTest is StrategyTests {
 
     // Inheriting contract defines the route for the strategy.
     function getEncodedRedToBlueRoute() internal pure returns (bytes memory) {
-        bytes memory RED_TO_BLUE_ROUTE = hex"02222789334D44bB5b2364939477E15A6c981Ca16501ffff00822abC8C238cFe43344C5db8629ed7e626fda08c0103B6A05D487e760edb383754dA58C801D860D1d0";
+        bytes memory RED_TO_BLUE_ROUTE = hex"02222789334D44bB5b2364939477E15A6c981Ca16501ffff00822abC8C238cFe43344C5db8629ed7e626fda08c0140D44abeC30288BFcd400200BA65FBD05daA5321";
 
         return abi.encode(RED_TO_BLUE_ROUTE);
     }
 
     // Inheriting contract defines the route for the strategy.
     function getEncodedBlueToRedRoute() internal pure returns (bytes memory) {
-        bytes memory BLUE_TO_RED_ROUTE = hex"026d3AbB80c3CBAe0f60ba274F36137298D8571Fbe01ffff00822abC8C238cFe43344C5db8629ed7e626fda08c0003B6A05D487e760edb383754dA58C801D860D1d0";
+        bytes memory BLUE_TO_RED_ROUTE = hex"026d3AbB80c3CBAe0f60ba274F36137298D8571Fbe01ffff00822abC8C238cFe43344C5db8629ed7e626fda08c0040D44abeC30288BFcd400200BA65FBD05daA5321";
 
         return abi.encode(BLUE_TO_RED_ROUTE);
     }
