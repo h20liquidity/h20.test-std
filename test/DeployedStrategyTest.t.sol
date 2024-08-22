@@ -29,7 +29,17 @@ contract DeployedStrategyTest is StrategyTests {
 
         EXTERNAL_EOA = address(0x654FEf5Fb8A1C91ad47Ba192F7AA81dd3C821427);
         APPROVED_EOA = address(0x669845c29D9B1A64FFF66a55aA13EB4adB889a88);
-        ORDER_OWNER = address(0x5e01e44aE1969e16B9160d903B6F2aa991a37B21); 
+        ORDER_OWNER = address(0x5e01e44aE1969e16B9160d903B6F2aa991a37B21);
+
+        bytes memory orderBook = LibComposeOrders.getOrderOrderBook(
+            vm,
+            "test/strategies/base-order.rain",
+            "test/strategies/base-settings.yml",
+            "buy-order",
+            "./lib/rain.orderbook",
+            "./lib/rain.orderbook/Cargo.toml"
+        );
+        iOrderBook = IOrderBookV4(address(uint160(bytes20(orderBook))));
     }
     
     // Inheriting contract tests OrderBook strategy with test suite.

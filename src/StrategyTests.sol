@@ -16,13 +16,6 @@ contract StrategyTests is OrderBookStrategyTest {
         internal
         returns (OrderV3 memory order)
     {
-        {
-            bytes memory orderBook = LibComposeOrders.getOrderOrderBook(
-                vm, strategy.strategyFile, strategy.settingsFile, strategy.deploymentKey, strategy.buildPath, strategy.manifestPath
-            );
-            iOrderBook = IOrderBookV4(address(uint160(bytes20(orderBook))));
-        }
-
         bytes memory addOrderCallData;
         {
             addOrderCallData = LibComposeOrders.getOrderCalldata(
