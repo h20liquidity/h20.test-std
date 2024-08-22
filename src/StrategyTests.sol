@@ -16,16 +16,39 @@ contract StrategyTests is OrderBookStrategyTest {
         internal
         returns (OrderV3 memory order)
     {
+        {
+            bytes memory orderBook = LibComposeOrders.getOrderOrderBook(
+                vm, strategy.strategyFile, strategy.settingsFile, strategy.deploymentKey, strategy.buildPath, strategy.manifestPath
+            );
+            iOrderBook = IOrderBookV4(address(uint160(bytes20(orderBook))));
+        }
+
+        bytes memory addOrderCallData;
+        {
+            addOrderCallData = LibComposeOrders.getOrderCalldata(
+                vm, strategy.strategyFile, strategy.settingsFile, strategy.deploymentKey, strategy.buildPath, strategy.manifestPath
+            );
+        }
+
+        vm.startPrank(ORDER_OWNER);
+        vm.recordLogs();
+        (, bytes memory result) = address(iOrderBook).call(addOrderCallData);
+        (bool stateChanged) = abi.decode(result, (bool));
+        assertEq(stateChanged, true);
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        (,, order) = abi.decode(entries[0].data, (address, bytes32, OrderV3));
+        assertEq(order.owner, ORDER_OWNER);
+           
         address inputToken;
         address outputToken;
         uint256 inputTokenVaultId;
         uint256 outputTokenVaultId;
 
         {
-            inputToken = strategy.inputVaults[strategy.inputTokenIndex].token;
-            outputToken = strategy.outputVaults[strategy.outputTokenIndex].token;
-            inputTokenVaultId = strategy.inputVaults[strategy.inputTokenIndex].vaultId;
-            outputTokenVaultId = strategy.outputVaults[strategy.outputTokenIndex].vaultId;
+            inputToken = order.validInputs[strategy.inputTokenIndex].token;
+            outputToken = order.validOutputs[strategy.outputTokenIndex].token;
+            inputTokenVaultId = order.validInputs[strategy.inputTokenIndex].vaultId;
+            outputTokenVaultId = order.validOutputs[strategy.outputTokenIndex].vaultId;
             deal(address(inputToken), EXTERNAL_EOA, 1e30);
             deal(address(outputToken), EXTERNAL_EOA, 1e30);
             deal(address(inputToken), APPROVED_EOA, 1e30);
@@ -35,26 +58,6 @@ contract StrategyTests is OrderBookStrategyTest {
         }
         {
             depositTokens(ORDER_OWNER, outputToken, outputTokenVaultId, strategy.takerAmount, new TaskV1[](0));
-        }
-        {   
-            TaskV1[] memory postAddOrderTasks;
-            {
-                bytes memory postOrderCompose = iParser.parse2(
-                    LibComposeOrders.getComposedPostAddOrder(
-                        vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
-                    )
-                );
-                EvaluableV3 memory postOrderEvaluable = EvaluableV3(iInterpreter, iStore, postOrderCompose);
-                TaskV1 memory postOrderAction = TaskV1(postOrderEvaluable,strategy.postAddOrderTaskSignedContext);
-                postAddOrderTasks = new TaskV1[](1);
-                postAddOrderTasks[0] = postOrderAction;
-            }
-            bytes memory bytecode = iParser.parse2(
-                LibComposeOrders.getComposedOrder(
-                    vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
-                )
-            );
-            order = placeOrder(ORDER_OWNER, bytecode, strategy.inputVaults, strategy.outputVaults, postAddOrderTasks);
         }
     }
 
@@ -84,8 +87,8 @@ contract StrategyTests is OrderBookStrategyTest {
         // Move external pool price in opposite direction that of the order
         {
             moveExternalPrice(
-                strategy.inputVaults[strategy.inputTokenIndex].token,
-                strategy.outputVaults[strategy.outputTokenIndex].token,
+                order.validInputs[strategy.inputTokenIndex].token,
+                order.validOutputs[strategy.outputTokenIndex].token,
                 strategy.makerAmount,
                 strategy.makerRoute
             );
@@ -114,7 +117,7 @@ contract StrategyTests is OrderBookStrategyTest {
     ) internal {
         bytes memory bytecode = iParser.parse2(
             LibComposeOrders.getComposedOrder(
-                vm, strategy.strategyFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
+                vm, strategy.strategyFile, strategy.settingsFile, strategy.strategyScenario, strategy.buildPath, strategy.manifestPath
             )
         );
 
@@ -130,6 +133,15 @@ contract StrategyTests is OrderBookStrategyTest {
         for(uint256  i = 0 ; i < stack.length; i++){
             console2.log("stack[%s] : %s",i, stack[i]);
         }
+    }
+
+    function toAddress(bytes memory b) internal pure returns (address) {
+        require(b.length >= 20, "Insufficient length");
+        address addr;
+        assembly {
+            addr := mload(add(b, 0x14)) // Load 20 bytes starting from the 20th byte
+        }
+        return addr;
     }
 
     function getBounty(Vm.Log[] memory entries)
@@ -153,5 +165,5 @@ contract StrategyTests is OrderBookStrategyTest {
             }   
         }
         return (bounties[0], bounties[1]);
-    } 
+    }
 }

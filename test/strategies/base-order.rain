@@ -1,24 +1,3 @@
-networks:
-  base-test: 
-    rpc: https://mainnet.base.org
-    chain-id: 8453 
-    network-id: 8453 
-    currency: ETH
-
-subgraphs:
-  base-test: https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/ob4-base/0.3/gn
-  
-orderbooks:
-  base-test:
-    address: 0x80DE00e3cA96AE0569426A1bb1Ae22CD4181dE6F
-    network: base-test
-    subgraph: base-test
-
-deployers:
-  base-test:
-    address: 0x56394785a22b3BE25470a0e03eD9E0a939C47b9b
-    network: base-test
-
 tokens:
   base-red:
     network: base-test
@@ -31,10 +10,10 @@ tokens:
 orders:
   base-order:
     inputs:
-      - token: base-red
+      - token: base-blue
         vault-id: 0x58f0bb181e38b0bfecbf503744e46ee3fe517425c56655288f640ad008930ca5
     outputs:
-      - token: base-blue
+      - token: base-red
         vault-id: 0x58f0bb181e38b0bfecbf503744e46ee3fe517425c56655288f640ad008930ca5
 
 scenarios:
