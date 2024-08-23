@@ -16,11 +16,10 @@ library LibStrategyDeployment {
         uint256 expectedRatio;
         uint256 expectedAmount;
         string strategyFile;
+        string settingsFile;
         string strategyScenario;
+        string deploymentKey;
         string buildPath;
         string manifestPath;
-        IO[] inputVaults;
-        IO[] outputVaults;
-        SignedContextV1[] postAddOrderTaskSignedContext;
     }
 }
