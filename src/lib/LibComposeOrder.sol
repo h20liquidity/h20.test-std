@@ -124,7 +124,7 @@ library LibComposeOrders {
         ffi[8] = "--package";
         ffi[9] = "rain_orderbook_cli";
         ffi[10] = "order";
-        ffi[11] = "ob";
+        ffi[11] = "ob-addr";
         ffi[12] = "-f";
         ffi[13] = filePath;
         ffi[14] = "-c";
