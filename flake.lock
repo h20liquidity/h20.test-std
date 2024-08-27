@@ -159,15 +159,16 @@
         "solc": "solc"
       },
       "locked": {
-        "lastModified": 1723043648,
-        "narHash": "sha256-DZCGdrjDRjjKF2BuPCqGb7H8guYA7uWsCeOT30tUWrk=",
+        "lastModified": 1724762818,
+        "narHash": "sha256-7ij9sJb4GAVwKPyel62P+E/ixNWVa4f/elCHunlyPX8=",
         "owner": "rainprotocol",
         "repo": "rainix",
-        "rev": "6baf112368cb17b44233b5fce6848aa0cc2d36d6",
+        "rev": "6413ce090fa36db909b038b7c5bf2604d930ceaa",
         "type": "github"
       },
       "original": {
         "owner": "rainprotocol",
+        "ref": "2024-08-27-words-task",
         "repo": "rainix",
         "type": "github"
       }
