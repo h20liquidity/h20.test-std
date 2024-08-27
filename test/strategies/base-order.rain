@@ -1,9 +1,9 @@
 tokens:
   base-red:
-    network: base-test
+    network: base
     address: 0x222789334D44bB5b2364939477E15A6c981Ca165
   base-blue:
-    network: base-test
+    network: base
     address: 0x6d3AbB80c3CBAe0f60ba274F36137298D8571Fbe
 
 
@@ -18,9 +18,9 @@ orders:
 
 scenarios:
     base-order-simulations:
-        network: base-test
-        deployer: base-test
-        orderbook: base-test
+        network: base
+        deployer: base
+        orderbook: base
         runs: 100
         bindings:
           # Ask for now, registry in future.
@@ -60,7 +60,7 @@ deployments:
 #handle-io
  :;
 
-#post-add-order
+#handle-add-order
  using-words-from orderbook-subparser
  :set(hash(order-hash() amount-key) max-output),
  :set(hash(order-hash() ratio-key) io-ratio);
