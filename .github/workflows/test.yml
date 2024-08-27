@@ -22,10 +22,6 @@ jobs:
       RPC_URL_ETH: ${{ secrets.CI_DEPLOY_ETH_RPC_URL || vars.CI_DEPLOY_ETH_RPC_URL }}
 
     steps:
-      - run: |
-          echo "MANIFEST_PATH=./lib/rain.orderbook/Cargo.toml" >> $GITHUB_ENV
-          echo "SETTINGS_PATH=test/strategies/settings.yml" >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -59,5 +55,3 @@ jobs:
         working-directory: lib/rain.orderbook
 
       - run: nix run .#rainix-sol-test
-  
-      - run: nix run .#rainix-deployer-words
