@@ -57,7 +57,7 @@ jobs:
       - run: nix run .#rainix-sol-test
 
       - name: Deployer words
-       run: |
+        run: |
           set -euxo pipefail
           
           networks=("base" "flare")
