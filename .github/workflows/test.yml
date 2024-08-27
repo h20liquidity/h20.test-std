@@ -56,10 +56,11 @@ jobs:
 
       - run: nix run .#rainix-sol-test
 
-      - run: |
+      - name: Deployer words
+       run: |
           set -euxo pipefail
           
-          networks=("base")
+          networks=("base" "flare")
           settings_file="test/strategies/settings.yml"
           manifest_path="./lib/rain.orderbook/Cargo.toml"
 
