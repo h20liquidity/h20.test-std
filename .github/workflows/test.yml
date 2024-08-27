@@ -56,16 +56,9 @@ jobs:
 
       - run: nix run .#rainix-sol-test
 
-      - name: Deployer words
-        run: |
-          set -euxo pipefail
+      - run: |
+          echo "MANIFEST_PATH=./lib/rain.orderbook/Cargo.toml" >> $GITHUB_ENV
+          echo "SETTINGS_PATH=test/strategies/settings.yml" >> $GITHUB_ENV
           
-          networks=("base" "flare")
-          settings_file="test/strategies/settings.yml"
-          manifest_path="./lib/rain.orderbook/Cargo.toml"
-
-          for network in "${networks[@]}"
-          do
-              echo "Checking deployer words for $network"
-              cargo run --manifest-path "${manifest_path}" --package rain_orderbook_cli words -c "${settings_file}" -d "$network"
-          done
+      - name: Deployer words
+        run: nix develop ./lib/rain.orderbook -c rainix-deployer-words
