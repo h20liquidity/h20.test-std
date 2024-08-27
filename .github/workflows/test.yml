@@ -60,11 +60,11 @@ jobs:
           set -euxo pipefail
           
           networks=("base")
-          settings_file="test/strategies/base-settings.yml"
+          settings_file="test/strategies/settings.yml"
+          manifest_path="./lib/rain.orderbook/Cargo.toml"
 
           for network in "${networks[@]}"
           do
               echo "Checking deployer words for $network"
-              cargo run --package rain_orderbook_cli words -c "${settings_file}" -d "$network"
+              cargo run --manifest-path "${manifest_path}" --package rain_orderbook_cli words -c "${settings_file}" -d "$network"
           done
-        working-directory: lib/rain.orderbook
