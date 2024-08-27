@@ -3,7 +3,7 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    rainix.url = "github:rainprotocol/rainix/2024-08-27-words-task";
+    rainix.url = "github:rainprotocol/rainix";
   };
 
   outputs = {self, rainix, flake-utils, ... }:
@@ -12,13 +12,13 @@
         pkgs = rainix.pkgs.${system};
       in rec {
         packages = rec{
-
           network-list = rainix.network-list.${system};
+          networks = pkgs.lib.concatStringsSep " " network-list;
 
           rainix-deployer-words = rainix.mkTask.${system} {
             name = "rainix-deployer-words";
             body = ''
-              for network in ${network-list}
+              for network in ${networks}
               do
                 echo "Checking deployer words for $network"
                 cargo run --manifest-path ''${MANIFEST_PATH} --package rain_orderbook_cli words -c ''${SETTINGS_PATH} -d "$network" --stdout
