@@ -11,7 +11,7 @@ import "src/StrategyTests.sol";
 /// to initialize the suite for a particular fork.
 contract DeployedStrategyTest is StrategyTests {
     // Inheriting contract defines the fork block number.
-    uint256 constant FORK_BLOCK_NUMBER = 18690236;
+    uint256 constant FORK_BLOCK_NUMBER = 18981552;
 
     // Inheriting contract defines fork selection.
     function selectFork() internal {
@@ -34,7 +34,7 @@ contract DeployedStrategyTest is StrategyTests {
         bytes memory orderBook = LibComposeOrders.getOrderOrderBook(
             vm,
             "test/strategies/base-order.rain",
-            "test/strategies/base-settings.yml",
+            "test/strategies/settings.yml",
             "buy-order",
             "./lib/rain.orderbook",
             "./lib/rain.orderbook/Cargo.toml"
@@ -59,7 +59,7 @@ contract DeployedStrategyTest is StrategyTests {
             expectedRatio,
             expectedAmountOutputMax,
             "test/strategies/base-order.rain",
-            "test/strategies/base-settings.yml",
+            "test/strategies/settings.yml",
             "",
             "buy-order",
             "./lib/rain.orderbook",
@@ -88,7 +88,7 @@ contract DeployedStrategyTest is StrategyTests {
             expectedRatio,
             expectedAmountOutputMax,
             "test/strategies/base-order.rain",
-            "test/strategies/base-settings.yml",
+            "test/strategies/settings.yml",
             "",
             "buy-order",
             "./lib/rain.orderbook",

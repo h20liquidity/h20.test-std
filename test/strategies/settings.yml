@@ -1,0 +1,23 @@
+networks:
+  base: 
+    rpc: https://mainnet.base.org	
+    chain-id: 8453 
+    network-id: 8453 
+    currency: ETH
+
+subgraphs:
+  base: http://replaceme.com
+
+metaboards:
+  base: http://replaceme.com
+
+orderbooks: 
+  base:
+    address: 0x80DE00e3cA96AE0569426A1bb1Ae22CD4181dE6F
+    network: base
+    subgraph: base
+  
+deployers:
+  base:
+    address: 0xC1A14cE2fd58A3A2f99deCb8eDd866204eE07f8D
+    network: base
