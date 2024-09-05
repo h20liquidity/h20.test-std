@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_METABOARD_ADDRESS: ${{ vars.CI_DEPLOY_SEPOLIA_METABOARD_ADDRESS }}
-      COMMIT_SHA: ${{ vars.COMMIT_SHA }}
       CI_FORK_SEPOLIA_BLOCK_NUMBER: ${{ vars.CI_FORK_SEPOLIA_BLOCK_NUMBER }}
       CI_FORK_SEPOLIA_DEPLOYER_ADDRESS: ${{ vars.CI_FORK_SEPOLIA_DEPLOYER_ADDRESS }}
       CI_DEPLOY_SEPOLIA_RPC_URL: ${{ secrets.CI_DEPLOY_SEPOLIA_RPC_URL || vars.CI_DEPLOY_SEPOLIA_RPC_URL }}
@@ -23,6 +22,9 @@ jobs:
       RPC_URL_ETH: ${{ secrets.CI_DEPLOY_ETH_RPC_URL || vars.CI_DEPLOY_ETH_RPC_URL }}
 
     steps:
+      - run: |
+          echo "COMMIT_SHA=$(cd ./lib/rain.orderbook && git rev-parse HEAD)" >> $GITHUB_ENV
+
       - uses: actions/checkout@v4
         with:
           submodules: recursive
